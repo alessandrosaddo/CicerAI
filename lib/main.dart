@@ -3,6 +3,7 @@ import 'screens/home_screen.dart';
 import 'screens/itinerary_screen.dart';
 import 'screens/history_screen.dart';
 import 'widgets/bottom_navbar.dart';
+import 'themes/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: MainNavigation(),
     );
   }
