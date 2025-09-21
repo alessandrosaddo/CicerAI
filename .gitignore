@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+# Android: icone e splash screen generate automaticamente
+android/app/src/main/res/drawable-*
+android/app/src/main/res/drawable-night-*
+android/app/src/main/res/mipmap-*
+android/app/src/main/res/values-night-*
+android/app/src/main/res/values-*
