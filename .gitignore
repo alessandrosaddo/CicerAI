@@ -51,3 +51,4 @@ android/app/src/main/res/drawable-night-*
 android/app/src/main/res/mipmap-*
 android/app/src/main/res/values-night-*
 android/app/src/main/res/values-*
+android/app/src/main/res/drawable/launch_background.xml
