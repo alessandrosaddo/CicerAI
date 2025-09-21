@@ -3,10 +3,11 @@ import 'colors.dart';
 
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
+    brightness: Brightness.light,
     primaryColor: AppColors.lightPrimary,
     scaffoldBackgroundColor: AppColors.lightBackground,
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.lightPrimary,
+      backgroundColor: AppColors.lightBackground,
       foregroundColor: AppColors.lightText,
     ),
 
@@ -18,10 +19,11 @@ class AppTheme {
   );
 
   static ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
     primaryColor: AppColors.darkPrimary,
     scaffoldBackgroundColor: AppColors.darkBackground,
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.darkPrimary,
+      backgroundColor: AppColors.darkBackground,
       foregroundColor: AppColors.darkText,
     ),
 

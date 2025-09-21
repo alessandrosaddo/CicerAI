@@ -4,6 +4,7 @@ import 'screens/itinerary_screen.dart';
 import 'screens/history_screen.dart';
 import 'widgets/bottom_navbar.dart';
 import 'themes/app_theme.dart';
+import 'widgets/custom_appbar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,7 +47,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Cicer AI')),
+      appBar: const CustomAppBar(),
       body: _screens[_selectedIndex],
       bottomNavigationBar: MyBottomNavigationBar(
         selectedIndex: _selectedIndex,
