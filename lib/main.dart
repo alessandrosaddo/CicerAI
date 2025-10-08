@@ -5,8 +5,11 @@ import 'screens/history_screen.dart';
 import 'widgets/bottom_navbar.dart';
 import 'themes/app_theme.dart';
 import 'widgets/custom_appbar.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -19,6 +22,18 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
+
+      locale: WidgetsBinding.instance.platformDispatcher.locale,
+
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('it', 'IT'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+
       home: MainNavigation(),
     );
   }
