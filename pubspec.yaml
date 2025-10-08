@@ -37,6 +37,13 @@ dependencies:
   google_fonts: ^6.3.1
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.6
+  flutter_dotenv: ^6.0.0
+  flutter_localizations:
+    sdk: flutter
+  geolocator: ^14.0.2
+  geocoding: ^4.0.0
+  google_places_flutter: ^2.1.1
+  uuid: ^4.5.1
 
 
 flutter_icons:
@@ -97,6 +104,7 @@ flutter:
     - images/dark.png
     - images/light.png
     - images/launcher.png
+    - .env
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
