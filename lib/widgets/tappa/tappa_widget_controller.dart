@@ -158,7 +158,7 @@ class TappaWidgetController {
             builder: (context) => AlertDialog(
               title: const Text("Orario non valido"),
               content: const Text(
-                "L'Orario Fine deve essere almeno un ora dopo l'Orario Inizio.",
+                "Inserisci almeno un'ora di differenza dall'orario inziale",
               ),
               actions: [
                 TextButton(
