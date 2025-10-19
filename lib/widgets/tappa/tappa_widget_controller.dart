@@ -152,7 +152,7 @@ class TappaWidgetController {
         final startMinutes =
             int.parse(inizioParts[0]) * 60 + int.parse(inizioParts[1]);
 
-        if (pickedMinutes <= startMinutes) {
+        if (pickedMinutes - startMinutes < 60) {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
