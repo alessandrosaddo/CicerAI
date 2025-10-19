@@ -30,18 +30,16 @@ class TappaWidgetView extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           margin: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.lightWidgetBackground,
-            border: Border.all(color: AppColors.lightBorderColor, width: 1.5),
+            color: AppColors.widgetBackground(context),
+            border: Border.all(color: AppColors.border(context), width: 1.5),
             borderRadius: BorderRadius.circular(35),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 8),
-
               // Ricerca e GPS
               buildRicercaLuogo(context),
-
               const SizedBox(height: 25),
 
                 // Inizio tappa
@@ -119,7 +117,7 @@ class TappaWidgetView extends StatelessWidget {
               // Mostra il pulsante elimina solo se canDelete è true
               if (canDelete) ...[
                 const SizedBox(height: 12),
-                _buildDeleteButton(),
+                _buildDeleteButton(context),
               ],
             ],
           ),
@@ -133,7 +131,7 @@ class TappaWidgetView extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.lightPrimary,
+                color: AppColors.primary(context),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   bottomRight: Radius.circular(12),
@@ -159,7 +157,7 @@ class TappaWidgetView extends StatelessWidget {
   Widget buildRicercaLuogo(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.lightBorderColor, width: 1.5),
+        border: Border.all(color: AppColors.border(context), width: 1.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(
@@ -169,18 +167,23 @@ class TappaWidgetView extends StatelessWidget {
             googleAPIKey: dotenv.env['GOOGLE_API_KEY'] ?? '',
             inputDecoration: InputDecoration(
               hintText: controller.isLoadingLocation ? "" : "Cerca Città/Rileva Posizione",
+              hintStyle: TextStyle(color: AppColors.hintText(context)),
               border: InputBorder.none,
-              prefixIcon: const Icon(Icons.travel_explore, size: 30),
+              prefixIcon: Icon(
+                Icons.travel_explore,
+                size: 30,
+                color: AppColors.icon(context),
+              ),
               suffixIcon: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Pulsante X per cancellare
+                  // X per cancellare
                   if (controller.cittaController.text.isNotEmpty)
                     IconButton(
                       onPressed: () => controller.clearCity(),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.clear,
-                        color: Colors.grey,
+                        color: AppColors.hintText(context),
                         size: 24,
                       ),
                     ),
@@ -188,7 +191,7 @@ class TappaWidgetView extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(right: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.lightPrimary,
+                      color: AppColors.primary(context),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
@@ -219,17 +222,20 @@ class TappaWidgetView extends StatelessWidget {
                     horizontal: 16,
                     vertical: 1,
                   ),
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.location_on,
-                    color: AppColors.lightPrimary,
+                    color: AppColors.primary(context),
                   ),
                   title: Text(
                     prediction.description ?? "",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text(context),
+                    ),
                   ),
                   subtitle: Text(
                     prediction.structuredFormatting?.secondaryText ?? "",
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(color: AppColors.hintText(context)),
                   ),
                 ),
               );
@@ -239,7 +245,7 @@ class TappaWidgetView extends StatelessWidget {
               child: Divider(
                 height: 0.5,
                 thickness: 0.2,
-                color: AppColors.lightBorderColor,
+                color: AppColors.divider(context),
               ),
             ),
             itemClick: (Prediction prediction) {
@@ -266,12 +272,12 @@ class TappaWidgetView extends StatelessWidget {
                       SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2.5,color: AppColors.lightPrimary,),
+                        child: CircularProgressIndicator(strokeWidth: 2.5,color: AppColors.primary(context),),
                       ),
                       SizedBox(width: 12),
                       Text(
                         "Rilevamento posizione...",
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                        style: TextStyle(color:  AppColors.hintText(context), fontSize: 16),
                       ),
                     ],
                   ),
@@ -297,15 +303,16 @@ class TappaWidgetView extends StatelessWidget {
       onTap: onTap,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: const Icon(Icons.calendar_month),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.lightBorderColor),
+        labelStyle: TextStyle(
+          color: enabled
+              ? AppColors.text(context)
+              : AppColors.disabledText(context),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.lightBorderColor),
+        prefixIcon: Icon(
+          Icons.calendar_month,
+          color: enabled
+              ? AppColors.icon(context)
+              : AppColors.disabledText(context),
         ),
       ),
     );
@@ -325,28 +332,29 @@ class TappaWidgetView extends StatelessWidget {
       onTap: onTap,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: const Icon(Icons.access_time),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.lightBorderColor),
+        labelStyle: TextStyle(
+          color: enabled
+              ? AppColors.text(context)
+              : AppColors.disabledText(context),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.lightBorderColor),
+        prefixIcon: Icon(
+          Icons.access_time,
+          color: enabled
+              ? AppColors.icon(context)
+              : AppColors.disabledText(context),
         ),
       ),
     );
   }
 
-  Widget _buildDeleteButton() {
+  Widget _buildDeleteButton(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: onDelete,
       icon: const Icon(Icons.delete),
       label: const Text("Elimina Tappa"),
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.lightText,
-        foregroundColor: Colors.blue,
+        backgroundColor: AppColors.delete(context),
+        foregroundColor: AppColors.deleteColorText(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );

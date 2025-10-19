@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cicer_ai/widgets/tappa/tappa_widget.dart';
 import 'package:cicer_ai/models/tappa_data.dart';
 
-// ItinerarioPage
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -38,9 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
         child: Column(
           children: [
-            const Text(
+            Text(
               "Personalizza il tuo Viaggio",
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(
+                fontSize: 20,
+                color: AppColors.text(context),
+                fontWeight: FontWeight.w600,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
@@ -60,9 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onDelete: () => _removeTappa(index),
                     onUpdate: _updateTappa,
                     showControls: tappeData.length > 1,
-                    canDelete:
-                        tappeData.length >
-                        1, // Mostra elimina solo se ci sono più tappe
+                    canDelete: tappeData.length > 1,
                   ),
                 );
               },
@@ -73,14 +74,18 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FloatingActionButton(
-                  backgroundColor: AppColors.lightPrimary,
+                  backgroundColor: AppColors.primary(context),
                   onPressed: _addTappa,
                   child: const Icon(Icons.add, color: Colors.white),
                 ),
                 const SizedBox(width: 10),
-                const Text(
+                Text(
                   "Aggiungi Tappa",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.text(context),
+                  ),
                 ),
               ],
             ),
