@@ -113,9 +113,9 @@ class TappaWidgetController {
           _dalleOreController.clear();
           _alGiornoController.clear();
           _alleOreController.clear();
-          _dataFine = null;
         } else {
           _dataFine = picked;
+          _alleOreController.clear();
         }
 
         controller.text =
@@ -152,7 +152,7 @@ class TappaWidgetController {
         final startMinutes =
             int.parse(inizioParts[0]) * 60 + int.parse(inizioParts[1]);
 
-        if (pickedMinutes <= startMinutes) {
+        if (pickedMinutes - startMinutes < 60) {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
