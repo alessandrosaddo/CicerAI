@@ -45,7 +45,6 @@ class LocationService {
 
       return placemarks.first.locality;
     } catch (e) {
-      // ✅ Aggiungi logging
       debugPrint('Errore nel recupero della posizione: $e');
       return null;
     }

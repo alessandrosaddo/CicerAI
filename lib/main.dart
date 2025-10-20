@@ -47,15 +47,15 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    HomeScreen(),
-    ItineraryScreen(),
-    HistoryScreen(),
-  ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  void _navigateToItinerary() {
+    setState(() {
+      _selectedIndex = 1;
     });
   }
 
@@ -63,7 +63,14 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
-      body: _screens[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          HomeScreen(onNavigateToItinerary: _navigateToItinerary),
+          ItineraryScreen(),
+          HistoryScreen(),
+        ],
+      ),
       bottomNavigationBar: MyBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
