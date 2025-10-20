@@ -69,26 +69,30 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
 
-            const SizedBox(height: 15),
+
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FloatingActionButton(
-                  backgroundColor: AppColors.primary(context),
+                ElevatedButton.icon(
                   onPressed: _addTappa,
-                  child: const Icon(Icons.add, color: Colors.white),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  "Aggiungi Tappa",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.text(context),
+                  icon: Icon(Icons.add_circle, color: AppColors.secondary(context)),
+                  label: Text(
+                    "Aggiungi Tappa",
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.secondary(context),
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary(context),
                   ),
                 ),
               ],
             ),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
