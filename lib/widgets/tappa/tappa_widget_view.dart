@@ -351,7 +351,7 @@ class TappaWidgetView extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onDelete,
       icon: const Icon(Icons.delete),
-      label: const Text("Elimina Tappa"),
+      label: const Text("Elimina"),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.delete(context),
         foregroundColor: AppColors.deleteColorText(context),
