@@ -55,7 +55,7 @@ class TappaWidgetView extends StatelessWidget {
                           controller.dalGiornoController,
                           isStart: true,
                         ),
-                        enabled: true,
+                        enabled: controller.cittaController.text.isNotEmpty,
                       ),
                     ),
 
