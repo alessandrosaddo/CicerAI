@@ -7,7 +7,7 @@ class AppColors {
   // Tema Chiaro
   static const lightBackground = Color(0xFFFBFBFB);
   static const lightPrimary = Color(0xFF047CDB);
-  static const lightSecondary = Color(0xFFFAF3E9);
+  static const lightSecondary = Colors.white;
   static const lightText = Color(0xFF393838);
   static const lightBorderColor = Color(0xFFBDD4E7);
   static const lightWidgetBackground = Color(0xFFF6F3EB);

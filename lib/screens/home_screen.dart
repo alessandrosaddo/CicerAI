@@ -98,17 +98,20 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 ElevatedButton.icon(
                   onPressed: _addTappa,
-                  icon: Icon(Icons.add_circle, color: AppColors.secondary(context)),
+                  icon: Icon(Icons.add_location_alt, color: AppColors.primary(context)),
                   label: Text(
                     "Aggiungi Tappa",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
-                      color: AppColors.secondary(context),
+                      color: AppColors.primary(context),
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary(context),
+                    backgroundColor: AppColors.secondary(context),
+                    side: BorderSide(
+                      color: AppColors.primary(context),
+                    )
                   ),
                 ),
 
