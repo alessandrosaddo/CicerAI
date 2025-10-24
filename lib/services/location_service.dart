@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:cicer_ai/models/location_data.dart';
 
 class LocationService {
 
   static bool permessiRifiutati = false;
 
-  static Future<String?> getCurrentCity({BuildContext? context}) async {
+  static Future<LocationData?> getCurrentCity({BuildContext? context}) async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -43,7 +44,17 @@ class LocationService {
         position.longitude,
       );
 
-      return placemarks.first.locality;
+      final cityName = placemarks.first.locality;
+
+      if (cityName != null) {
+        return LocationData(
+          city: cityName,
+          lat: position.latitude,
+          lng: position.longitude,
+        );
+      }
+
+      return null;
     } catch (e) {
       debugPrint('Errore nel recupero della posizione: $e');
       return null;

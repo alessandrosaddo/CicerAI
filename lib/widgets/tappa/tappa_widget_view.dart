@@ -255,6 +255,10 @@ class TappaWidgetView extends StatelessWidget {
               });
             },
             getPlaceDetailWithLatLng: (Prediction prediction) {
+              controller.updateCoordinates(
+                double.tryParse(prediction.lat ?? ''),
+                double.tryParse(prediction.lng ?? ''),
+              );
               debugPrint("Lat: ${prediction.lat}, Lng: ${prediction.lng}");
             },
           ),

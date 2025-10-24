@@ -8,6 +8,8 @@ class TappaData {
   final DateTime? dataFine;
   final String oraInizio;
   final String oraFine;
+  final double? lat;
+  final double? lng;
 
   TappaData({
     String? id,
@@ -16,6 +18,8 @@ class TappaData {
     this.dataFine,
     this.oraInizio = '',
     this.oraFine = '',
+    this.lat,
+    this.lng,
   }) : id = id ?? const Uuid().v4();
 
   TappaData copyWith({
@@ -24,6 +28,8 @@ class TappaData {
     DateTime? dataFine,
     String? oraInizio,
     String? oraFine,
+    double? lat,
+    double? lng,
   }) {
     return TappaData(
       id: id,
@@ -32,6 +38,23 @@ class TappaData {
       dataFine: dataFine ?? this.dataFine,
       oraInizio: oraInizio ?? this.oraInizio,
       oraFine: oraFine ?? this.oraFine,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'citta': citta,
+      'dataInizio': dataInizio?.toIso8601String(),
+      'dataFine': dataFine?.toIso8601String(),
+      'oraInizio': oraInizio,
+      'oraFine': oraFine,
+      'coordinate': {
+        'lat': lat,
+        'lng': lng,
+      },
+    };
+  }
+
 }
