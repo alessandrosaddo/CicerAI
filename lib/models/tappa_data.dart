@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'itinerary/coordinate.dart';
 
 
 class TappaData {
@@ -8,8 +9,7 @@ class TappaData {
   final DateTime? dataFine;
   final String oraInizio;
   final String oraFine;
-  final double? lat;
-  final double? lng;
+  final Coordinate? coordinate;
 
   TappaData({
     String? id,
@@ -18,8 +18,7 @@ class TappaData {
     this.dataFine,
     this.oraInizio = '',
     this.oraFine = '',
-    this.lat,
-    this.lng,
+    this.coordinate,
   }) : id = id ?? const Uuid().v4();
 
   TappaData copyWith({
@@ -28,8 +27,7 @@ class TappaData {
     DateTime? dataFine,
     String? oraInizio,
     String? oraFine,
-    double? lat,
-    double? lng,
+    Coordinate? coordinate,
   }) {
     return TappaData(
       id: id,
@@ -38,8 +36,7 @@ class TappaData {
       dataFine: dataFine ?? this.dataFine,
       oraInizio: oraInizio ?? this.oraInizio,
       oraFine: oraFine ?? this.oraFine,
-      lat: lat ?? this.lat,
-      lng: lng ?? this.lng,
+      coordinate: coordinate ?? this.coordinate,
     );
   }
 
@@ -50,10 +47,7 @@ class TappaData {
       'dataFine': dataFine?.toIso8601String(),
       'oraInizio': oraInizio,
       'oraFine': oraFine,
-      'coordinate': {
-        'lat': lat,
-        'lng': lng,
-      },
+      'coordinate': coordinate?.toJson(),
     };
   }
 

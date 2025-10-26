@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cicer_ai/models/tappa_data.dart';
 import 'package:cicer_ai/services/location_service.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:cicer_ai/models/location_data.dart';
+import 'package:cicer_ai/models/itinerary/coordinate.dart';
 
 class TappaWidgetController {
   final TappaData tappaData;
@@ -19,8 +19,7 @@ class TappaWidgetController {
   DateTime? _dataFine;
   bool _isLoadingLocation = false;
 
-  double? _lat;
-  double? _lng;
+  Coordinate? _coordinate;
 
   TappaWidgetController(this.tappaData, this.setState, this.onUpdate) {
     _cittaController.text = tappaData.citta;
@@ -36,8 +35,7 @@ class TappaWidgetController {
     _alleOreController.text = tappaData.oraFine;
 
     // Inizializza coordinate se presenti
-    _lat = tappaData.lat;
-    _lng = tappaData.lng;
+    _coordinate = tappaData.coordinate;
 
     // Aggiorna la UI quando il testo cambia
     _cittaController.addListener(_onCityChanged);
@@ -71,15 +69,17 @@ class TappaWidgetController {
   }
 
   void updateCoordinates(double? lat, double? lng) {
-    _lat = lat;
-    _lng = lng;
+    if (lat != null && lng != null) {
+      _coordinate = Coordinate(lat: lat, lng: lng);
+    } else {
+      _coordinate = null;
+    }
     _notifyUpdate();
   }
 
   void clearCity() {
     _cittaController.clear();
-    _lat = null;
-    _lng = null;
+    _coordinate = null;
     setState(() {});
     _notifyUpdate();
   }
@@ -90,13 +90,9 @@ class TappaWidgetController {
     });
 
     try {
-      LocationData? result = await LocationService.getCurrentCity(context: context);
-      if (result != null) {
-        updateCity(result.city);
-
-        updateCoordinates(result.lat, result.lng);
-
-        debugPrint("Posizione GPS - Città: ${result.city}, Lat: ${result.lat}, Lng: ${result.lng}");
+      String? city = (await LocationService.getCurrentCity(context: context)) as String?;
+      if (city != null) {
+        updateCity(city);
       }
     } finally {
       setState(() {
@@ -214,8 +210,7 @@ class TappaWidgetController {
       dataFine: _dataFine,
       oraInizio: _dalleOreController.text,
       oraFine: _alleOreController.text,
-      lat: _lat,
-      lng: _lng,
+      coordinate: _coordinate,
     );
   }
 
