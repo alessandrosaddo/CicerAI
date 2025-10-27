@@ -2,10 +2,16 @@ import 'package:cicer_ai/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cicer_ai/widgets/tappa/tappa_widget.dart';
 import 'package:cicer_ai/models/tappa_data.dart';
+import 'package:cicer_ai/services/gemini_service.dart';
+import 'package:cicer_ai/models/itinerary/itinerary_response.dart';
 
 class HomeScreen extends StatefulWidget {
-  final VoidCallback? onNavigateToItinerary;
-  const HomeScreen({super.key, this.onNavigateToItinerary});
+  final Function(ItineraryResponse?, bool, String?)? onItineraryGenerated;
+
+  const HomeScreen({
+    super.key,
+    this.onItineraryGenerated,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -13,6 +19,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<TappaData> tappeData = [TappaData()];
+  final GeminiService _geminiService = GeminiService();
+  bool _isGenerating = false;
 
   void _addTappa() => setState(() => tappeData.add(TappaData()));
 
@@ -37,22 +45,52 @@ class _HomeScreenState extends State<HomeScreen> {
           tappa.dataInizio == null ||
           tappa.dataFine == null ||
           tappa.oraInizio.trim().isEmpty ||
-          tappa.oraFine.trim().isEmpty) {
+          tappa.oraFine.trim().isEmpty ||
+          tappa.coordinate == null) {
         return false;
       }
     }
     return true;
   }
 
-  void _navigateToItinerary() {
-    if (widget.onNavigateToItinerary != null) {
-      widget.onNavigateToItinerary!();
+  Future<void> _generateItinerary() async {
+    if (!_areAllTappeComplete()) return;
+
+    setState(() => _isGenerating = true);
+
+    // Notifica che sta caricando
+    widget.onItineraryGenerated?.call(null, true, null);
+
+    try {
+      // Chiamata al servizio Gemini
+      final itinerario = await _geminiService.generateItinerary(tappeData);
+
+      // Notifica successo
+      widget.onItineraryGenerated?.call(itinerario, false, null);
+    } catch (e) {
+      // Notifica errore
+      widget.onItineraryGenerated?.call(null, false, e.toString());
+
+      // Mostra anche uno SnackBar locale
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Errore: ${e.toString()}'),
+            backgroundColor: AppColors.deleteColorText(context),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isGenerating = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isGenerateEnabled = _areAllTappeComplete();
+    final bool isGenerateEnabled = _areAllTappeComplete() && !_isGenerating;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -91,42 +129,58 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
 
-
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton.icon(
-                  onPressed: _addTappa,
-                  icon: Icon(Icons.add_location_alt, color: AppColors.primary(context)),
+                  onPressed: _isGenerating ? null : _addTappa,
+                  icon: Icon(
+                    Icons.add_location_alt,
+                    color: _isGenerating
+                        ? AppColors.disabledText(context)
+                        : AppColors.primary(context),
+                  ),
                   label: Text(
                     "Aggiungi Tappa",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
-                      color: AppColors.primary(context),
+                      color: _isGenerating
+                          ? AppColors.disabledText(context)
+                          : AppColors.primary(context),
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.secondary(context),
                     side: BorderSide(
-                      color: AppColors.primary(context),
-                    )
+                      color: _isGenerating
+                          ? AppColors.disabledText(context)
+                          : AppColors.primary(context),
+                    ),
                   ),
                 ),
 
                 const SizedBox(width: 10),
 
                 ElevatedButton.icon(
-                  onPressed: isGenerateEnabled ? _navigateToItinerary : null,
-                  icon: Icon(
+                  onPressed: isGenerateEnabled ? _generateItinerary : null,
+                  icon: _isGenerating
+                      ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: AppColors.secondary(context),
+                    ),
+                  )
+                      : Icon(
                     Icons.route,
                     color: isGenerateEnabled
-                      ? AppColors.secondary(context)
-                      : AppColors.disabledText(context),
+                        ? AppColors.secondary(context)
+                        : AppColors.disabledText(context),
                   ),
                   label: Text(
-                    "Genera Itinerario",
+                    _isGenerating ? "Generazione..." : "Genera Itinerario",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w400,

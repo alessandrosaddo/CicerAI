@@ -7,6 +7,7 @@ import 'themes/app_theme.dart';
 import 'widgets/custom_appbar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'models/itinerary/itinerary_response.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -47,14 +48,26 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
+  ItineraryResponse? _currentItinerary;
+  bool _isLoadingItinerary = false;
+  String? _itineraryError;
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  void _navigateToItinerary() {
+  void _handleItineraryGeneration(
+      ItineraryResponse? itinerary,
+      bool isLoading,
+      String? error,
+      ) {
     setState(() {
+      _currentItinerary = itinerary;
+      _isLoadingItinerary = isLoading;
+      _itineraryError = error;
+
       _selectedIndex = 1;
     });
   }
@@ -66,8 +79,12 @@ class _MainNavigationState extends State<MainNavigation> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          HomeScreen(onNavigateToItinerary: _navigateToItinerary),
-          ItineraryScreen(),
+          HomeScreen(onItineraryGenerated: _handleItineraryGeneration),
+          ItineraryScreen(
+            itinerario: _currentItinerary,
+            isLoading: _isLoadingItinerary,
+            errorMessage: _itineraryError,
+          ),
           HistoryScreen(),
         ],
       ),
