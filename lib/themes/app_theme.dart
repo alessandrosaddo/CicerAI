@@ -46,6 +46,12 @@ class AppTheme {
       hintStyle: TextStyle(color: AppColors.lightHintText),
     ),
 
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: AppColors.lightPrimary,
+      selectionColor: AppColors.lightPrimary,
+      selectionHandleColor: AppColors.lightPrimary,
+    ),
+
 
   );
 
@@ -88,6 +94,13 @@ class AppTheme {
       prefixIconColor: AppColors.darkIconColor,
       hintStyle: TextStyle(color: AppColors.darkHintText),
     ),
+
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: AppColors.darkPrimary,
+      selectionColor: AppColors.darkPrimary,
+      selectionHandleColor: AppColors.darkPrimary,
+    ),
+
   );
 
 

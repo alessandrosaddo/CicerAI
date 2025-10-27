@@ -90,10 +90,19 @@ class TappaWidgetController {
     });
 
     try {
-      String? city = (await LocationService.getCurrentCity(context: context)) as String?;
-      if (city != null) {
-        updateCity(city);
+      final locationData = await LocationService.getCurrentCity(context: context);
+
+      if (locationData != null) {
+        updateCity(locationData.city);
+
+        updateCoordinates(locationData.lat, locationData.lng);
+
+        debugPrint('✅ Posizione rilevata: ${locationData.city} (${locationData.lat}, ${locationData.lng})');
+      } else {
+        debugPrint('⚠️ Nessuna posizione rilevata');
       }
+    } catch (e) {
+      debugPrint('❌ Errore rilevamento posizione: $e');
     } finally {
       setState(() {
         _isLoadingLocation = false;
