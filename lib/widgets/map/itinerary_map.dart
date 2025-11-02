@@ -162,33 +162,46 @@ class ItineraryMapModel extends ChangeNotifier {
   }
 
   // Scarica un'immagine (con timeout)
-  Future<Uint8List?> downloadImage(String url) async {
+  Future<Uint8List?> downloadImageWithRetry(String url, {int maxRetries = 2}) async {
     if (_imageCache.containsKey(url)) {
       return _imageCache[url];
     }
 
-    try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(const Duration(seconds: 5));
+    for (int attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        final response = await http
+            .get(Uri.parse(url))
+            .timeout(Duration(seconds: 10 + (attempt * 5)));
 
-      if (response.statusCode == 200) {
-        final bytes = response.bodyBytes;
-        _imageCache[url] = bytes;
-        return bytes;
+        if (response.statusCode == 200) {
+          final bytes = response.bodyBytes;
+          _imageCache[url] = bytes;
+          debugPrint('✅ Download riuscito per $url (tentativo ${attempt + 1})');
+          return bytes;
+        }
+      } catch (e) {
+        if (attempt == maxRetries) {
+          debugPrint('❌ Download fallito dopo ${attempt + 1} tentativi per $url: $e');
+          _imageCache[url] = null;
+          return null;
+        }
+        debugPrint('⚠️ Tentativo ${attempt + 1} fallito per $url, riprovo...');
+        await Future.delayed(Duration(seconds: 1 + attempt));
       }
-    } catch (e) {
-      debugPrint('⚠️ Errore download immagine $url: $e');
     }
 
     _imageCache[url] = null;
     return null;
   }
 
+  Future<Uint8List?> downloadImage(String url) async {
+    return downloadImageWithRetry(url);
+  }
+
   // Scarica immagini in batch con limite di concorrenza
   Future<Map<String, Uint8List?>> downloadImagesInBatch(
       List<String> urls, {
-        int maxConcurrent = 5,
+        int maxConcurrent = 3,
       }) async {
     final results = <String, Uint8List?>{};
 
@@ -216,7 +229,7 @@ class ItineraryMapModel extends ChangeNotifier {
     }
 
     debugPrint(
-      '📥 Pre-caricamento di ${urls.length} immagini (max 5 parallele)...',
+      '📥 Pre-caricamento di ${urls.length} immagini (max 3 parallele)...',
     );
     final startTime = DateTime.now();
 

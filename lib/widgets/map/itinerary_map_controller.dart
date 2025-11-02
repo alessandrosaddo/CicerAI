@@ -390,8 +390,13 @@ class ItineraryMapController {
       Uint8List? imageBytes = model.getCachedImage(imageUrl);
 
       if (imageBytes == null) {
-        debugPrint('⚠️ Immagine non in cache per $placeName');
-        return null;
+        debugPrint('📥 Download per $placeName...');
+        imageBytes = await model.downloadImage(imageUrl);
+
+        if (imageBytes == null) {
+          debugPrint('⚠️ Download fallito per $placeName');
+          return null;
+        }
       }
 
       final ui.Codec codec = await ui.instantiateImageCodec(
