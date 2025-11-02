@@ -186,16 +186,39 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    final showBackground = !widget.isLoading &&
+        widget.errorMessage == null &&
+        (widget.itinerario == null || widget.itinerario!.itinerario.isEmpty);
+
+
+    if (showBackground) {
+      final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Opacity(
+            opacity: 0.3,
+            child: Image.asset(
+              isDarkMode
+                  ? 'images/travel_dark.png'
+                  : 'images/travel_light.png',
+              fit: BoxFit.contain,
+              alignment: Alignment(0, -0.05),
+            ),
+          ),
+          _buildEmptyState(),
+        ],
+      );
+    }
+
     if (widget.isLoading) {
       return _buildLoadingState('Generazione itinerario in corso...');
     }
 
     if (widget.errorMessage != null) {
       return _buildErrorState(widget.errorMessage!);
-    }
-
-    if (widget.itinerario == null || widget.itinerario!.itinerario.isEmpty) {
-      return _buildEmptyState();
     }
 
     if (_isLoadingImages || _isInitializingMarkers || !_isMapReady()) {
@@ -261,35 +284,28 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.map_outlined,
-            size: 80,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          'Nessun itinerario generato',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.text(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Vai nella sezione "Cerca" \n e crea il tuo Viaggio!',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
             color: AppColors.hintText(context),
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Nessun itinerario generato',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.text(context),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Vai nella sezione "Cerca" per creare\nil tuo primo itinerario',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.hintText(context),
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 40)
+      ],
     );
   }
 
