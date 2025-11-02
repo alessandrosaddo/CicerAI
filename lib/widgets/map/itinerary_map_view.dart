@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cicer_ai/themes/colors.dart';
@@ -76,6 +78,12 @@ class _ItineraryMapViewState extends State<ItineraryMapView> {
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
           mapToolbarEnabled: false,
+
+          gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+            Factory<OneSequenceGestureRecognizer>(
+                  () => EagerGestureRecognizer(),
+            ),
+          },
         ),
 
         // Pulsante "Torna alla vista generale" (solo in modalità dettaglio)
