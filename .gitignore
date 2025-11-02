@@ -53,5 +53,6 @@ android/app/src/main/res/values-night-*
 android/app/src/main/res/values-*
 android/app/src/main/res/drawable/launch_background.xml
 
-# .env: API e TOKEN
+# API e TOKEN
 *.env
+**/android/local.properties
