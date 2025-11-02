@@ -10,7 +10,7 @@ class GeminiService {
   GeminiService() {
     final apiKey = dotenv.env['GEMINI_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('GEMINI_API_KEY non trovata');
+      throw Exception('API Key non trovata');
     }
 
     _model = GenerativeModel(
@@ -31,7 +31,6 @@ class GeminiService {
       // Validazione input
       _validateTappe(tappe);
 
-      // Costruzione prompt
       final prompt = _buildPrompt(tappe);
 
       // Chiamata a Gemini
@@ -57,7 +56,6 @@ class GeminiService {
       throw Exception('Errore durante la generazione dell\'itinerario: $e');
     }
   }
-
 
 
   // Valida che tutte le tappe abbiano i dati necessari
@@ -107,17 +105,14 @@ REGOLE FONDAMENTALI:
 6. Includi pause pranzo/cena negli orari appropriati (es. 13:00-14:30, 20:00-21:30)
 7. Considera gli orari di apertura REALI dei luoghi turistici (musei, monumenti, ecc.)
 
-FORMATO OUTPUT (JSON):
+FORMATO OUTPUT (JSON VALIDO):
 Genera ESCLUSIVAMENTE un JSON valido con questa struttura (NESSUN testo prima o dopo il JSON):
 
 {
   "itinerario": [
     {
       "citta": "Nome della città",
-      "coordinate": {
-        "lat": latitudine_città,
-        "lng": longitudine_città
-      },
+      "coordinate": {"lat": 0.0, "lng": 0.0},
       "giornate": [
         {
           "data": "YYYY-MM-DD",
@@ -127,11 +122,9 @@ Genera ESCLUSIVAMENTE un JSON valido con questa struttura (NESSUN testo prima o 
               "descrizione": "Descrizione dettagliata (2-3 frasi) del posto, cosa vedere, perché è interessante",
               "orario_inizio": "HH:MM",
               "orario_fine": "HH:MM",
-              "coordinate": {
-                "lat": latitudine_posto,
-                "lng": longitudine_posto
-              },
-              "url_immagine": ""
+              "coordinate": {"lat": 0.0, "lng": 0.0},
+              "wikipedia_title": "Titolo_Wikipedia",
+              "wikipedia_lang": "it"
             }
           ]
         }
@@ -161,10 +154,18 @@ Se una tappa va dal 25/10/2025 alle 09:00 al 27/10/2025 alle 18:00:
 - Giorno 3 (27/10): Posti dalle 09:00 alle 18:00
 
 IMPORTANTE:
-- Lascia sempre il campo "url_immagine" come stringa vuota ""
 - Le coordinate devono essere precise (usa valori reali per ogni posto specifico)
 - Gli orari devono susseguirsi logicamente senza sovrapposizioni
 - Includi almeno 3-5 posti per giornata (in base alla durata)
+
+IMPORTANTE PER WIKIPEDIA:
+- Per ogni posto, fornisci il campo "wikipedia_title" con il TITOLO ESATTO come appare nell'URL dell'articolo Wikipedia
+- Il titolo deve essere quello che appare nell'URL di Wikipedia (es. "Colosseo", "Torre_di_Pisa", "Duomo_di_Milano")
+- Usa gli underscore "_" al posto degli spazi (es. "Fontana_di_Trevi" NON "Fontana di Trevi")
+- NON usare caratteri URL-encoded (come %27)
+- Se non sei sicuro del titolo esatto, usa il nome del posto senza spazi (es. "Colosseo" invece di "Colosseo di Roma")
+- Imposta sempre "wikipedia_lang": "it" per articoli in italiano
+- Se un posto non ha un articolo Wikipedia chiaro, lascia "wikipedia_title": null
 
 Genera SOLO il JSON, senza alcun testo aggiuntivo prima o dopo.
 ''';
@@ -173,21 +174,8 @@ Genera SOLO il JSON, senza alcun testo aggiuntivo prima o dopo.
   // Parsing della risposta di Gemini
   ItineraryResponse _parseResponse(String responseText) {
     try {
-      // Rimuovi eventuali caratteri extra prima/dopo il JSON
-      String cleanedJson = responseText.trim();
-
-      // Rimuovi eventuali markdown code blocks
-      if (cleanedJson.startsWith('```json')) {
-        cleanedJson = cleanedJson.substring(7);
-      } else if (cleanedJson.startsWith('```')) {
-        cleanedJson = cleanedJson.substring(3);
-      }
-
-      if (cleanedJson.endsWith('```')) {
-        cleanedJson = cleanedJson.substring(0, cleanedJson.length - 3);
-      }
-
-      cleanedJson = cleanedJson.trim();
+      // Pulisci il JSON
+      String cleanedJson = _cleanJsonString(responseText);
 
       // Parsing del JSON
       final Map<String, dynamic> jsonData = jsonDecode(cleanedJson);
@@ -198,8 +186,57 @@ Genera SOLO il JSON, senza alcun testo aggiuntivo prima o dopo.
       return itinerary;
 
     } catch (e) {
+      print('❌ Errore parsing JSON completo:');
+      print(responseText);
       throw FormatException('Impossibile parsare la risposta di Gemini: $e');
     }
   }
 
+  String _cleanJsonString(String jsonString) {
+    String cleaned = jsonString.trim();
+
+    // Rimuovi markdown
+    if (cleaned.startsWith('```json')) {
+      cleaned = cleaned.substring(7);
+    } else if (cleaned.startsWith('```')) {
+      cleaned = cleaned.substring(3);
+    }
+    if (cleaned.endsWith('```')) {
+      cleaned = cleaned.substring(0, cleaned.length - 3);
+    }
+
+    cleaned = cleaned.trim();
+    cleaned = cleaned.replaceAll(RegExp(r'[\u200B-\u200D\uFEFF]'), '');
+
+    // Rimuovi trailing commas prima di chiudere
+    cleaned = cleaned.replaceAll(RegExp(r',\s*([}\]])'), r'$1');
+
+    // Tronca all'ultimo oggetto completo se necessario
+    if (!cleaned.endsWith('}') && !cleaned.endsWith(']')) {
+      print('⚠️ JSON troncato, cerco l\'ultimo blocco completo...');
+
+      // Trova l'ultimo "}" che chiude un posto completo
+      final lastCompleteObject = cleaned.lastIndexOf('}');
+      if (lastCompleteObject != -1) {
+        cleaned = cleaned.substring(0, lastCompleteObject + 1);
+
+        // Chiudi gli array e oggetti aperti
+        final openBraces = '{'.allMatches(cleaned).length;
+        final closeBraces = '}'.allMatches(cleaned).length;
+        final openBrackets = '['.allMatches(cleaned).length;
+        final closeBrackets = ']'.allMatches(cleaned).length;
+
+        for (int i = 0; i < (openBrackets - closeBrackets); i++) {
+          cleaned += ']';
+        }
+        for (int i = 0; i < (openBraces - closeBraces); i++) {
+          cleaned += '}';
+        }
+
+        print('✅ JSON riparato fino all\'ultimo oggetto completo');
+      }
+    }
+
+    return cleaned;
+  }
 }
