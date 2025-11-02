@@ -6,7 +6,9 @@ class PostoVisitabile {
   final String orarioInizio;
   final String orarioFine;
   final Coordinate? coordinate;
-  final String urlImmagine;
+  final String? wikipediaTitle;
+  final String? wikipediaLang;
+  String? urlImmagine;
 
   PostoVisitabile({
     required this.nome,
@@ -14,6 +16,8 @@ class PostoVisitabile {
     required this.orarioInizio,
     required this.orarioFine,
     this.coordinate,
+    this.wikipediaTitle,
+    this.wikipediaLang = 'it',
     this.urlImmagine = '',
   });
 
@@ -27,6 +31,8 @@ class PostoVisitabile {
       coordinate: json['coordinate'] != null
           ? Coordinate.fromJson(json['coordinate'])
           : null,
+      wikipediaTitle: json['wikipedia_title'],
+      wikipediaLang: json['wikipedia_lang'] ?? 'it',
       urlImmagine: json['url_immagine'] ?? '',
     );
   }
@@ -39,6 +45,8 @@ class PostoVisitabile {
       'orario_inizio': orarioInizio,
       'orario_fine': orarioFine,
       'coordinate': coordinate?.toJson(),
+      'wikipedia_title': wikipediaTitle,
+      'wikipedia_lang': wikipediaLang,
       'url_immagine': urlImmagine,
     };
   }
@@ -57,6 +65,12 @@ class PostoVisitabile {
       return null;
     }
   }
+  // Verifica se il posto ha dati Wikipedia
+  bool get hasWikipediaData => wikipediaTitle != null && wikipediaTitle!.isNotEmpty;
+
+  // Verifica se l'immagine è stata caricata
+  bool get hasImage => urlImmagine != null && urlImmagine!.isNotEmpty;
+
 
   @override
   String toString() => 'PostoVisitabile(nome: $nome, orario: $orarioInizio-$orarioFine)';
