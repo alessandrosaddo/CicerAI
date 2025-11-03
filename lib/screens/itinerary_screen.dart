@@ -312,38 +312,43 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
 
 
   Widget _buildItinerary() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Container mappa
-          Container(
-            height: MediaQuery.of(context).size.height * 0.4,
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.widgetBackground(context),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: AppColors.border(context),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              // Container mappa
+              Container(
+                height: MediaQuery.of(context).size.height * 0.4,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.widgetBackground(context),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppColors.border(context),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: ItineraryMapView(
-                controller: _mapController!,
-                model: _mapModel!,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: ItineraryMapView(
+                    controller: _mapController!,
+                    model: _mapModel!,
+                  ),
+                ),
               ),
-            ),
-          ),
 
-          ItineraryList(itinerary: widget.itinerario!),
+              ItineraryList( itinerary: widget.itinerario!, onOpenInMaps: _mapController!.openInGoogleMaps),
+            ],
+          ),
+        ),
 
         ],
       ),
