@@ -80,6 +80,23 @@ class ItineraryList extends StatelessWidget {
                       itemBuilder: (context, postoIndex) {
                         final posto = giornata.posti[postoIndex];
 
+                        final imageWidget = ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16),
+                          ),
+                          child: posto.hasImage
+                              ? Image.network(
+                            posto.urlImmagine!,
+                            height: 140,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stack) {
+                              return _buildPlaceholderImage();
+                            },
+                          )
+                              : _buildPlaceholderImage(),
+                        );
+
                         return Container(
                           width: 200,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
