@@ -226,7 +226,7 @@ class ItineraryMapController {
       position: position,
       icon: icon,
       anchor: const Offset(0.5, 0.5),
-      onTap: () => _openInGoogleMaps(position, posto.nome),
+      onTap: () => openInGoogleMaps(position, posto.nome),
       infoWindow: InfoWindow(
         title: '$number. ${posto.nome}',
         snippet: 'Tap per aprire in Google Maps',
@@ -274,7 +274,7 @@ class ItineraryMapController {
     _fitAllCities();
   }
 
-  Future<void> _openInGoogleMaps(LatLng position, String label) async {
+  Future<void> openInGoogleMaps(LatLng position, String label) async {
     final url = Uri.parse(
       'https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}',
     );
