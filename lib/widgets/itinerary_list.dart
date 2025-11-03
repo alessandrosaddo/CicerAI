@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:cicer_ai/models/itinerary/itinerary_response.dart';
 import 'package:cicer_ai/themes/colors.dart';
+import 'package:cicer_ai/widgets/place_detail.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class ItineraryList extends StatelessWidget {
   final ItineraryResponse itinerary;
+  final Function(LatLng, String)? onOpenInMaps;
 
   const ItineraryList({
     super.key,
     required this.itinerary,
+    this.onOpenInMaps,
   });
+
+
+  void _openPlaceDetails(
+      BuildContext context,
+      posto,
+      String cityName,
+      String date,
+      Widget imageWidget,
+      ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => PlaceDetail(
+        posto: posto,
+        cityName: cityName,
+        date: date,
+        imageWidget: imageWidget,
+        onOpenInMaps: onOpenInMaps,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +42,6 @@ class ItineraryList extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(vertical: 16),
-
       itemCount: itinerary.itinerario.length,
       itemBuilder: (context, cityIndex) {
         final city = itinerary.itinerario[cityIndex];
@@ -25,7 +49,6 @@ class ItineraryList extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             // Lista città (verticale)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -49,13 +72,11 @@ class ItineraryList extends StatelessWidget {
               ),
             ),
 
-
             // Lista giorni (orizzontale)
             ...city.giornate.map((giornata) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // Data della giornata
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -75,7 +96,6 @@ class ItineraryList extends StatelessWidget {
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-
                       itemCount: giornata.posti.length,
                       itemBuilder: (context, postoIndex) {
                         final posto = giornata.posti[postoIndex];
@@ -100,94 +120,90 @@ class ItineraryList extends StatelessWidget {
                         return Container(
                           width: 200,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Card(
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+
+                          child: InkWell(
+                            onTap: () => _openPlaceDetails(
+                              context,
+                              posto,
+                              city.citta,
+                              giornata.dataFormattata,
+                              imageWidget,
                             ),
-                            color: AppColors.secondary(context),
+                            borderRadius: BorderRadius.circular(16),
+
+                            child: Card(
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              color: AppColors.secondary(context),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  imageWidget,
 
 
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-
-                                // Immagine
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
-                                  child: posto.hasImage
-                                      ? Image.network(
-                                    posto.urlImmagine!,
-                                    height: 140,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stack) {
-                                      return _buildPlaceholderImage();
-                                    },
-                                  )
-                                      : _buildPlaceholderImage(),
-                                ),
-
-                                // Contenuto Posto
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-
-                                        // Nome
-                                        Text(
-                                          posto.nome,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.text(context),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-
-                                        const SizedBox(height: 2),
-
-                                        // Orario
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.access_time,
-                                              size: 14,
-                                              color: AppColors.primary(context),
+                                  // Contenuto Posto
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 5,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Nome
+                                          Text(
+                                            posto.nome,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.text(context),
                                             ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '${posto.orarioInizio} - ${posto.orarioFine}',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                color: AppColors.hintText(context),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+
+                                          const SizedBox(height: 2),
+
+                                          // Orario
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.access_time,
+                                                size: 14,
+                                                color: AppColors.primary(context),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-
-                                        const SizedBox(height: 6),
-
-                                        // Descrizione
-                                        Text(
-                                          posto.descrizione,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.text(context),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '${posto.orarioInizio} - ${posto.orarioFine}',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: AppColors.hintText(context),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          maxLines: 3,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+
+                                          const SizedBox(height: 6),
+
+                                          // Descrizione
+                                          Text(
+                                            posto.descrizione,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.text(context),
+                                            ),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
