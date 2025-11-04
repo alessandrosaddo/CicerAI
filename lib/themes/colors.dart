@@ -19,6 +19,8 @@ class AppColors {
   static const lightDivider = lightBorderColor;
   static const lightIconMap = Colors.white;
   static const lightWarning = Color(0xFFF3C102);
+  static const lightAccept = Color(0xFF09FA1C);
+
 
 
   // Tema Scuro
@@ -36,6 +38,7 @@ class AppColors {
   static const darkDivider = darkBorderColor;
   static const darkIconMap = Colors.white;
   static const darkWarning = Color(0xFFF8EC0A);
+  static const darkAccept = Color(0xFF009F19);
 
 
 
@@ -124,5 +127,11 @@ class AppColors {
     return Theme.of(context).brightness == Brightness.light
         ? lightWarning
         : darkWarning;
+  }
+
+  static Color acceptColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.light
+        ? lightAccept
+        : darkAccept;
   }
 }
