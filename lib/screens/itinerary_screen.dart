@@ -350,8 +350,22 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
           ),
         ),
 
-        ],
-      ),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: FloatingActionButton(
+            backgroundColor: AppColors.primary(context),
+            shape: const CircleBorder(),
+            onPressed: (){},
+            child: Icon(
+                Icons.save_alt,
+              size: 32,
+              color: AppColors.secondary(context),
+
+            ),
+          ),
+        )
+      ],
     );
   }
 
