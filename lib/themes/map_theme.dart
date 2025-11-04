@@ -2,8 +2,45 @@ import 'package:flutter/material.dart';
 
 class MapStyles {
 
-  // Tema Chiaro (Default Google Maps)
-  static const String lightMapStyle = '''[]''';
+  // Tema Chiaro
+  static const String lightMapStyle = '''
+  [
+  {
+    "featureType": "administrative",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.icon",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  }
+]
+  ''';
 
 
   // Tema Scuro
