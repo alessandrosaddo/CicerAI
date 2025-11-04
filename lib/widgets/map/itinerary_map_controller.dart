@@ -276,7 +276,9 @@ class ItineraryMapController {
     final cityCoordinates = model.allCityCoordinates;
     model.setCurrentBounds(_calculateBounds(cityCoordinates));
 
-    _fitAllCities();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _fitAllCities();
+    });
   }
 
   Future<void> openInGoogleMaps(LatLng position, String label) async {
