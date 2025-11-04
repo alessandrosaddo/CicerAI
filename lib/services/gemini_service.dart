@@ -156,9 +156,10 @@ B) PAUSE PRANZO/CENA (tipo: "pausa"):
 - Includi almeno 3-5 posti per giornata (in base alla durata)
 
 IMPORTANTE PER LE COORDINATE:
-- Le coordinate delle ATTRAZIONI devono essere PRECISE e corrispondere ESATTAMENTE al luogo
-- Se non sei sicuro delle coordinate esatte, usa quelle del centro storico della città
-- Verifica che lat/lng siano corrette (latitudine tra -90 e 90, longitudine tra -180 e 180)
+- Le coordinate delle ATTRAZIONI devono essere PRECISE e corrispondere ESATTAMENTE al luogo specifico
+- NON usare le coordinate del centro città per tutti i luoghi
+- Verifica che lat/lng siano nel range valido (lat: -90 a 90, lng: -180 a 180)
+- Per le PAUSE, le coordinate devono essere null
 
 
 IMPORTANTE PER WIKIPEDIA:
@@ -171,13 +172,44 @@ IMPORTANTE PER WIKIPEDIA:
 - Se un posto non ha un articolo Wikipedia chiaro, lascia "wikipedia_title": null
 
 
-COSA INCLUDERE:
-- Monumenti e attrazioni turistiche principali
-- Musei e gallerie d'arte
-- Parchi e giardini
-- Zone caratteristiche da esplorare a piedi
-- Punti panoramici
-- Pause pranzo/cena negli orari corretti
+COSA INCLUDERE (SOLO QUESTI DUE TIPI):
+
+A) ATTRAZIONI TURISTICHE (tipo: "attrazione"):
+   - Monumenti storici
+   - Musei e gallerie d'arte
+   - Chiese e cattedrali
+   - Palazzi storici
+   - Parchi e giardini pubblici
+   - Piazze famose
+   - Punti panoramici
+   - Zone caratteristiche da esplorare a piedi
+   - Mercati tipici
+   - Teatri storici
+
+B) PAUSE PRANZO/CENA (tipo: "pausa"):
+   - Pausa pranzo (fascia oraria 12:30-14:30)
+   - Pausa cena (fascia oraria 19:30-21:30)
+ 
+
+COSA NON INCLUDERE MAI (DIVIETO ASSOLUTO):
+
+✗ "Arrivo a [città]"
+✗ "Trasferimento a [città]"
+✗ "Partenza da [città]"
+✗ "Check-in hotel"
+✗ "Check-out hotel"
+✗ "Sistemazione in hotel"
+✗ "Tempo libero"
+✗ "Riposo"
+✗ "Spostamento da X a Y"
+✗ "Viaggio verso [luogo]"
+✗ Qualsiasi attività logistica o di trasferimento
+✗ Qualsiasi momento di transito o attesa
+
+INSERISCI ESCLUSIVAMENTE:
+✓ Luoghi fisici da visitare (monumenti, musei, piazze, chiese, ecc.)
+✓ Pause pranzo/cena
+
 
 COSA CONSIDERARE:
 - Vicinanza geografica dei posti per minimizzare spostamenti
