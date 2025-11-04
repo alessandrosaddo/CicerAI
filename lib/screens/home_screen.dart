@@ -157,15 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       widget.onItineraryGenerated?.call(null, false, e.toString());
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Errore: ${e.toString()}'),
-            backgroundColor: AppColors.deleteColorText(context),
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
     } finally {
       if (mounted) {
         setState(() => _isGenerating = false);

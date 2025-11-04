@@ -52,9 +52,9 @@ class GeminiService {
       return itinerary;
 
     } on FormatException catch (e) {
-      throw Exception('Errore nel parsing del JSON: ${e.message}');
+      throw Exception('Il formato della risposta è invalido.\nProva con meno giorni o tappe.');
     } catch (e) {
-      throw Exception('Errore durante la generazione dell\'itinerario: $e');
+      throw Exception('Errore durante la generazione dell\'itinerario.\nControlla la connessione e riprova.');
     }
   }
 

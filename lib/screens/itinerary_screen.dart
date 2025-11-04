@@ -62,7 +62,6 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
     debugPrint('✅ Itinerario completamente inizializzato');
   }
 
-
   Future<void> _loadWikipediaImages() async {
     if (widget.itinerario == null || widget.itinerario!.itinerario.isEmpty) {
       return;
@@ -95,7 +94,9 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
         return;
       }
 
-      debugPrint('📡 Caricamento ${postiConWikipedia.length} immagini da Wikipedia...');
+      debugPrint(
+        '📡 Caricamento ${postiConWikipedia.length} immagini da Wikipedia...',
+      );
 
       // Scarica immagini
       final imagesMap = await _wikipediaService.getImagesForPlaces(
@@ -187,11 +188,10 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    final showBackground = !widget.isLoading &&
+    final showBackground =
+        !widget.isLoading &&
         widget.errorMessage == null &&
         (widget.itinerario == null || widget.itinerario!.itinerario.isEmpty);
-
 
     if (showBackground) {
       final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -202,9 +202,7 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
           Opacity(
             opacity: 0.3,
             child: Image.asset(
-              isDarkMode
-                  ? 'images/travel_dark.png'
-                  : 'images/travel_light.png',
+              isDarkMode ? 'images/travel_dark.png' : 'images/travel_light.png',
               fit: BoxFit.contain,
               alignment: Alignment(0, -0.05),
             ),
@@ -228,8 +226,6 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
 
     return _buildItinerary();
   }
-
-
 
   // UI
   Widget _buildLoadingState(String message) {
@@ -264,18 +260,42 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
             Text(
               'Errore nella generazione',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
                 color: AppColors.text(context),
               ),
             ),
-            const SizedBox(height: 8),
             Text(
-              errorMessage,
-              textAlign: TextAlign.center,
+              'Riprova a creare l\'itinerario...',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: AppColors.hintText(context),
+              ),
+            ),
+            const SizedBox(height: 58),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.warning_amber,
+                  color: AppColors.warningColor(context),
+                  size: 30,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Se l\'errore persiste',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: AppColors.text(context),
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              'riduci la durata del viaggio',
+              style: TextStyle(
+                fontSize: 20,
+                color: AppColors.text(context),
               ),
             ),
           ],
@@ -300,16 +320,12 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
         Text(
           'Vai nella sezione "Cerca" \n e crea il tuo Viaggio!',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.hintText(context),
-          ),
+          style: TextStyle(fontSize: 14, color: AppColors.hintText(context)),
         ),
-        const SizedBox(height: 40)
+        const SizedBox(height: 40),
       ],
     );
   }
-
 
   Widget _buildItinerary() {
     return Stack(
@@ -345,7 +361,10 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
                 ),
               ),
 
-              ItineraryList( itinerary: widget.itinerario!, onOpenInMaps: _mapController!.openInGoogleMaps),
+              ItineraryList(
+                itinerary: widget.itinerario!,
+                onOpenInMaps: _mapController!.openInGoogleMaps,
+              ),
             ],
           ),
         ),
@@ -356,15 +375,14 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
           child: FloatingActionButton(
             backgroundColor: AppColors.primary(context),
             shape: const CircleBorder(),
-            onPressed: (){},
+            onPressed: () {},
             child: Icon(
-                Icons.save_alt,
+              Icons.save_alt,
               size: 32,
               color: AppColors.secondary(context),
-
             ),
           ),
-        )
+        ),
       ],
     );
   }
