@@ -8,6 +8,7 @@ import 'widgets/custom_appbar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'models/itinerary/itinerary_response.dart';
+import 'services/database_service.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -16,6 +17,7 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,9 +25,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-
       locale: WidgetsBinding.instance.platformDispatcher.locale,
-
       supportedLocales: const [
         Locale('en', 'US'),
         Locale('it', 'IT'),
@@ -34,42 +34,107 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
+      home: const MainNavigation(),
+    );
+  }
+}
 
-      home: MainNavigation(),
+// State class per gestire lo stato dell'itinerario
+class ItineraryState {
+  final ItineraryResponse? itinerary;
+  final bool isLoading;
+  final String? error;
+
+  const ItineraryState({
+    this.itinerary,
+    this.isLoading = false,
+    this.error,
+  });
+
+  ItineraryState copyWith({
+    ItineraryResponse? itinerary,
+    bool? isLoading,
+    String? error,
+  }) {
+    return ItineraryState(
+      itinerary: itinerary ?? this.itinerary,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
     );
   }
 }
 
 class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
   @override
-  _MainNavigationState createState() => _MainNavigationState();
+  State<MainNavigation> createState() => _MainNavigationState();
 }
 
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  ItineraryResponse? _currentItinerary;
-  bool _isLoadingItinerary = false;
-  String? _itineraryError;
+  final ValueNotifier<ItineraryState> _itineraryState = ValueNotifier(
+    const ItineraryState(),
+  );
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  final DatabaseService _db = DatabaseService();
+  final GlobalKey<HistoryScreenState> _historyScreenKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _itineraryState.dispose();
+    super.dispose();
   }
 
+  void _onItemTapped(int index) {
+    setState(() => _selectedIndex = index);
+  }
+
+  // Gestisce la generazione di un nuovo itinerario
   void _handleItineraryGeneration(
       ItineraryResponse? itinerary,
       bool isLoading,
       String? error,
       ) {
-    setState(() {
-      _currentItinerary = itinerary;
-      _isLoadingItinerary = isLoading;
-      _itineraryError = error;
+    _itineraryState.value = ItineraryState(
+      itinerary: itinerary,
+      isLoading: isLoading,
+      error: error,
+    );
 
-      _selectedIndex = 1;
-    });
+    // Passa automaticamente alla schermata itinerario
+    setState(() => _selectedIndex = 1);
+  }
+
+
+  Future<void> _handleSavedItinerarySelected(int itineraryId) async {
+    _itineraryState.value = const ItineraryState(isLoading: true);
+    setState(() => _selectedIndex = 1);
+
+    try {
+      final savedItinerary = await _db.getItineraryById(itineraryId);
+
+      if (savedItinerary != null) {
+        final itinerary = savedItinerary.toItineraryResponse();
+        _itineraryState.value = ItineraryState(itinerary: itinerary);
+      } else {
+        _itineraryState.value = const ItineraryState(
+          error: 'Impossibile caricare l\'itinerario',
+        );
+      }
+    } catch (e) {
+      debugPrint('Errore caricamento itinerario: $e');
+      _itineraryState.value = const ItineraryState(
+        error: 'Errore durante il caricamento',
+      );
+    }
+  }
+
+
+  void _handleItinerarySaved() {
+    debugPrint('Itinerario salvato, ricarico la history...');
+    _historyScreenKey.currentState?.reloadItineraries();
   }
 
   @override
@@ -80,12 +145,24 @@ class _MainNavigationState extends State<MainNavigation> {
         index: _selectedIndex,
         children: [
           HomeScreen(onItineraryGenerated: _handleItineraryGeneration),
-          ItineraryScreen(
-            itinerario: _currentItinerary,
-            isLoading: _isLoadingItinerary,
-            errorMessage: _itineraryError,
+
+          // Usa ValueListenableBuilder per reagire ai cambiamenti
+          ValueListenableBuilder<ItineraryState>(
+            valueListenable: _itineraryState,
+            builder: (context, state, _) {
+              return ItineraryScreen(
+                itinerario: state.itinerary,
+                isLoading: state.isLoading,
+                errorMessage: state.error,
+                onItinerarySaved: _handleItinerarySaved,
+              );
+            },
           ),
-          HistoryScreen(),
+
+          HistoryScreen(
+            key: _historyScreenKey,
+            onItinerarySelected: _handleSavedItinerarySelected,
+          ),
         ],
       ),
       bottomNavigationBar: MyBottomNavigationBar(

@@ -6,17 +6,20 @@ import 'package:cicer_ai/widgets/map/itinerary_map.dart';
 import 'package:cicer_ai/themes/colors.dart';
 import 'package:cicer_ai/services/wikipedia_service.dart';
 import 'package:cicer_ai/widgets/itinerary_list.dart';
+import 'package:cicer_ai/widgets/save_itinerary_dialog.dart';
 
 class ItineraryScreen extends StatefulWidget {
   final ItineraryResponse? itinerario;
   final bool isLoading;
   final String? errorMessage;
+  final VoidCallback? onItinerarySaved;
 
   const ItineraryScreen({
     super.key,
     this.itinerario,
     this.isLoading = false,
     this.errorMessage,
+    this.onItinerarySaved,
   });
 
   @override
@@ -190,8 +193,8 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
   Widget build(BuildContext context) {
     final showBackground =
         !widget.isLoading &&
-        widget.errorMessage == null &&
-        (widget.itinerario == null || widget.itinerario!.itinerario.isEmpty);
+            widget.errorMessage == null &&
+            (widget.itinerario == null || widget.itinerario!.itinerario.isEmpty);
 
     if (showBackground) {
       final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -375,7 +378,7 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
           child: FloatingActionButton(
             backgroundColor: AppColors.primary(context),
             shape: const CircleBorder(),
-            onPressed: () {},
+            onPressed: _saveItinerary,
             child: Icon(
               Icons.save_alt,
               size: 32,
@@ -385,6 +388,24 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
         ),
       ],
     );
+  }
+
+
+  Future<void> _saveItinerary() async {
+    if (widget.itinerario == null) return;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => SaveItineraryDialog(
+        itinerary: widget.itinerario!,
+      ),
+    );
+
+    // Se result == true, l'itinerario è stato salvato
+    if (result == true) {
+      debugPrint('Itinerario salvato con successo');
+      widget.onItinerarySaved?.call();
+    }
   }
 
   // HELPER
