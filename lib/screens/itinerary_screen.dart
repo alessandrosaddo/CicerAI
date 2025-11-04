@@ -13,11 +13,11 @@ class ItineraryScreen extends StatefulWidget {
   final String? errorMessage;
 
   const ItineraryScreen({
-    Key? key,
+    super.key,
     this.itinerario,
     this.isLoading = false,
     this.errorMessage,
-  }) : super(key: key);
+  });
 
   @override
   State<ItineraryScreen> createState() => _ItineraryScreenState();
@@ -330,7 +330,7 @@ class _ItineraryScreenState extends State<ItineraryScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

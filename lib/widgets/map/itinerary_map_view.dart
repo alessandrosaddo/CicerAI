@@ -13,10 +13,10 @@ class ItineraryMapView extends StatefulWidget {
   final ItineraryMapModel model;
 
   const ItineraryMapView({
-    Key? key,
+    super.key,
     required this.controller,
     required this.model,
-  }) : super(key: key);
+  });
 
   @override
   State<ItineraryMapView> createState() => _ItineraryMapViewState();
@@ -72,6 +72,7 @@ class _ItineraryMapViewState extends State<ItineraryMapView> {
           onMapCreated: _onMapCreated,
           initialCameraPosition: widget.controller.initialCameraPosition,
           cameraTargetBounds: widget.controller.cameraTargetBounds,
+          minMaxZoomPreference: widget.controller.minMaxZoomPreference,
           markers: widget.controller.currentMarkers,
           polylines: widget.controller.currentPolylines,
           onTap: (_) {}, // Previene click accidentali
@@ -98,14 +99,14 @@ class _ItineraryMapViewState extends State<ItineraryMapView> {
       right: 8,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.primary(context).withOpacity(0.8),
+          color: AppColors.primary(context).withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(22),
         ),
         child: IconButton(
           onPressed: widget.controller.returnToOverview,
           icon: Icon(
             Icons.fullscreen,
-            color: AppColors.IconColorMap(context),
+            color: AppColors.iconColorMap(context),
             size: 40,
           ),
           padding: const EdgeInsets.all(1),

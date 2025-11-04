@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cicer_ai/models/tappa_data.dart';
 import 'package:cicer_ai/services/location_service.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:cicer_ai/models/itinerary/coordinate.dart';
 
 class TappaWidgetController {
@@ -178,6 +177,7 @@ class TappaWidgetController {
             int.parse(inizioParts[0]) * 60 + int.parse(inizioParts[1]);
 
         if (pickedMinutes - startMinutes < 60) {
+          if (!context.mounted) return;
           showDialog(
             context: context,
             builder: (context) => AlertDialog(

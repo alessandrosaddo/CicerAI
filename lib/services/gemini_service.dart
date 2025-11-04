@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:cicer_ai/models/tappa_data.dart';
@@ -186,8 +187,8 @@ Genera SOLO il JSON, senza alcun testo aggiuntivo prima o dopo.
       return itinerary;
 
     } catch (e) {
-      print('❌ Errore parsing JSON completo:');
-      print(responseText);
+      debugPrint('❌ Errore parsing JSON completo:');
+      debugPrint(responseText);
       throw FormatException('Impossibile parsare la risposta di Gemini: $e');
     }
   }
@@ -213,7 +214,7 @@ Genera SOLO il JSON, senza alcun testo aggiuntivo prima o dopo.
 
     // Tronca all'ultimo oggetto completo se necessario
     if (!cleaned.endsWith('}') && !cleaned.endsWith(']')) {
-      print('⚠️ JSON troncato, cerco l\'ultimo blocco completo...');
+      debugPrint('⚠️ JSON troncato, cerco l\'ultimo blocco completo...');
 
       // Trova l'ultimo "}" che chiude un posto completo
       final lastCompleteObject = cleaned.lastIndexOf('}');
@@ -233,7 +234,7 @@ Genera SOLO il JSON, senza alcun testo aggiuntivo prima o dopo.
           cleaned += '}';
         }
 
-        print('✅ JSON riparato fino all\'ultimo oggetto completo');
+        debugPrint('✅ JSON riparato fino all\'ultimo oggetto completo');
       }
     }
 

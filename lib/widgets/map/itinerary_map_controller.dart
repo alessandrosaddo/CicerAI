@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'itinerary_map.dart';
-
+import 'dart:math';
 
 class ItineraryMapController {
   final ItineraryMapModel model;
@@ -105,7 +105,7 @@ class ItineraryMapController {
         Polyline(
           polylineId: const PolylineId('city_route'),
           points: polylinePoints,
-          color: Colors.blue.withOpacity(0.6),
+          color: Colors.blue.withValues(alpha: 0.6),
           width: 4,
           patterns: [PatternItem.dash(20), PatternItem.gap(10)],
         ),
@@ -193,7 +193,7 @@ class ItineraryMapController {
         Polyline(
           polylineId: PolylineId('place_route_${city.citta}'),
           points: polylinePoints,
-          color: Colors.orange.withOpacity(0.7),
+          color: Colors.orange.withValues(alpha: 0.7),
           width: 3,
           patterns: [PatternItem.dash(20), PatternItem.gap(10)],
         ),
@@ -284,12 +284,12 @@ class ItineraryMapController {
     }
   }
 
-  // CALCOLI E UTILITÀ
+
+  // Adatta la camera per mostrare tutte le città
   void _fitAllCities() {
     if (_mapController == null || model.itinerary.itinerario.isEmpty) return;
 
     final coordinates = model.allCityCoordinates;
-
     if (coordinates.isEmpty) return;
 
     if (coordinates.length == 1) {
@@ -299,13 +299,18 @@ class ItineraryMapController {
       return;
     }
 
-    final bounds = _createLatLngBounds(coordinates);
-    _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    // Metodo per creare inquadratura
+    final bounds = _calculateBounds(coordinates, withMargin: false);
+    if (bounds != null) {
+      _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    }
   }
 
-  LatLngBounds? _calculateBounds(List<LatLng> coordinates) {
+  // CALCOLI E UTILITÀ
+  LatLngBounds? _calculateBounds(List<LatLng> coordinates, {bool withMargin = true}) {
     if (coordinates.isEmpty) return null;
 
+    // Se c'è un solo Punto
     if (coordinates.length == 1) {
       final point = coordinates.first;
       const margin = 0.05;
@@ -315,6 +320,7 @@ class ItineraryMapController {
       );
     }
 
+    // Trova i limiti geografici
     double minLat = coordinates.first.latitude;
     double maxLat = coordinates.first.latitude;
     double minLng = coordinates.first.longitude;
@@ -327,32 +333,46 @@ class ItineraryMapController {
       if (coord.longitude > maxLng) maxLng = coord.longitude;
     }
 
-    final latMargin = (maxLat - minLat) * 0.1;
-    final lngMargin = (maxLng - minLng) * 0.1;
+    // Aggiunge margine
+    if (withMargin) {
+      final latMargin = (maxLat - minLat) * 0.1;
+      final lngMargin = (maxLng - minLng) * 0.1;
 
-    return LatLngBounds(
-      southwest: LatLng(minLat - latMargin, minLng - lngMargin),
-      northeast: LatLng(maxLat + latMargin, maxLng + lngMargin),
-    );
-  }
-
-  LatLngBounds _createLatLngBounds(List<LatLng> coordinates) {
-    double minLat = coordinates.first.latitude;
-    double maxLat = coordinates.first.latitude;
-    double minLng = coordinates.first.longitude;
-    double maxLng = coordinates.first.longitude;
-
-    for (final coord in coordinates) {
-      if (coord.latitude < minLat) minLat = coord.latitude;
-      if (coord.latitude > maxLat) maxLat = coord.latitude;
-      if (coord.longitude < minLng) minLng = coord.longitude;
-      if (coord.longitude > maxLng) maxLng = coord.longitude;
+      return LatLngBounds(
+        southwest: LatLng(minLat - latMargin, minLng - lngMargin),
+        northeast: LatLng(maxLat + latMargin, maxLng + lngMargin),
+      );
     }
 
     return LatLngBounds(
       southwest: LatLng(minLat, minLng),
       northeast: LatLng(maxLat, maxLng),
     );
+  }
+
+
+  // Calcola Zoom minimo
+  MinMaxZoomPreference get minMaxZoomPreference {
+    final bounds = model.currentBounds;
+
+    if (bounds == null) {
+      return const MinMaxZoomPreference(5.0, null);
+    }
+
+    // Calcola l'estensione geografica dell'area
+    final latSpan = bounds.northeast.latitude - bounds.southwest.latitude;
+    final lngSpan = bounds.northeast.longitude - bounds.southwest.longitude;
+    final maxSpan = max(latSpan, lngSpan);
+
+    // Formula: log₂(360 / span) = zoom ottimale per coprire l'area
+    final baseZoom = maxSpan > 0
+        ? (log(360 / maxSpan) / log(2)).clamp(1.0, 20.0)
+        : 10.0;
+
+    // Permette di rimpicciolire di 2 livelli rispetto allo zoom ottimale
+    final minZoom = (baseZoom - 2).clamp(5.0, 18.0);
+
+    return MinMaxZoomPreference(minZoom, null);
   }
 
   // CREAZIONE ICONE MARKER

@@ -13,13 +13,13 @@ class TappaWidgetView extends StatelessWidget {
   final bool canDelete;
 
   const TappaWidgetView({
-    Key? key,
+    super.key,
     required this.controller,
     required this.tappaIndex,
     required this.onDelete,
     required this.showControls,
     required this.canDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -112,7 +112,7 @@ class AppColors {
         : darkTextDelete;
   }
 
-  static Color IconColorMap(BuildContext context) {
+  static Color iconColorMap(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light
         ? lightIconMap
         : darkIconMap;

@@ -48,7 +48,7 @@ class PlaceDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Immagine grande
+                  // Immagine
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: SizedBox(
