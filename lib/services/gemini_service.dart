@@ -119,13 +119,14 @@ Genera ESCLUSIVAMENTE un JSON valido con questa struttura (NESSUN testo prima o 
           "data": "YYYY-MM-DD",
           "posti": [
             {
-              "nome": "Nome del posto/attrazione",
+              "nome": "Nome del posto/attrazione/pranzo/cena",
               "descrizione": "Descrizione dettagliata (2-3 frasi) del posto, cosa vedere, perché è interessante",
               "orario_inizio": "HH:MM",
               "orario_fine": "HH:MM",
               "coordinate": {"lat": 0.0, "lng": 0.0},
               "wikipedia_title": "Titolo_Wikipedia",
-              "wikipedia_lang": "it"
+              "wikipedia_lang": "it",
+              "tipo":  'pausa' : 'attrazione'
             }
           ]
         }
@@ -134,30 +135,31 @@ Genera ESCLUSIVAMENTE un JSON valido con questa struttura (NESSUN testo prima o 
   ]
 }
 
-COSA INCLUDERE:
-- Monumenti e attrazioni turistiche principali
-- Musei e gallerie d'arte
-- Parchi e giardini
-- Esperienze gastronomiche locali (ristoranti tipici, mercati)
-- Zone caratteristiche da esplorare a piedi
-- Punti panoramici
-
-COSA CONSIDERARE:
-- Vicinanza geografica dei posti per minimizzare spostamenti
-- Tipologia di esperienza bilanciata (cultura, relax, cibo)
-- Stagionalità e condizioni meteo tipiche del periodo
-- Tempo necessario per godersi ogni esperienza senza fretta
-
-ESEMPIO DI COORDINAZIONE TEMPORALE CORRETTA:
-Se una tappa va dal 25/10/2025 alle 09:00 al 27/10/2025 alle 18:00:
-- Giorno 1 (25/10): Posti dalle 09:00 alle 23:00
-- Giorno 2 (26/10): Posti dalle 09:00 alle 23:00  
-- Giorno 3 (27/10): Posti dalle 09:00 alle 18:00
-
 IMPORTANTE:
+- DUE TIPI DI POSTI:
+A) ATTRAZIONI TURISTICHE (tipo: "attrazione"):
+   - Monumenti, musei, parchi, punti panoramici
+   - DEVONO avere coordinate precise (lat/lng)
+
+
+B) PAUSE PRANZO/CENA (tipo: "pausa"):
+   - NON devono avere coordinate (lascia null)
+   - NON devono avere wikipedia_title (lascia null)
+   - NON devono avere url_immagine
+   - PER OGNI giornata, se ha una durata che contiene l'orario per la pausa pranzo/cena devono essere SEMPRE presenti
+   - Descrizione BREVE: solo "pranzo/cena in zona [nome zona]. Prova i piatti tipici della cucina locale."
+   - La zona deve essere vicina all'ultimo posto visitato o intermedia tra l'ultimo e il prossimo
+   - Nome: "Pranzo in Zona [nome zona]" o "Cena in Zona [nome zona]"
+   
 - Le coordinate devono essere precise (usa valori reali per ogni posto specifico)
 - Gli orari devono susseguirsi logicamente senza sovrapposizioni
 - Includi almeno 3-5 posti per giornata (in base alla durata)
+
+IMPORTANTE PER LE COORDINATE:
+- Le coordinate delle ATTRAZIONI devono essere PRECISE e corrispondere ESATTAMENTE al luogo
+- Se non sei sicuro delle coordinate esatte, usa quelle del centro storico della città
+- Verifica che lat/lng siano corrette (latitudine tra -90 e 90, longitudine tra -180 e 180)
+
 
 IMPORTANTE PER WIKIPEDIA:
 - Per ogni posto, fornisci il campo "wikipedia_title" con il TITOLO ESATTO come appare nell'URL dell'articolo Wikipedia
@@ -167,6 +169,52 @@ IMPORTANTE PER WIKIPEDIA:
 - Se non sei sicuro del titolo esatto, usa il nome del posto senza spazi (es. "Colosseo" invece di "Colosseo di Roma")
 - Imposta sempre "wikipedia_lang": "it" per articoli in italiano
 - Se un posto non ha un articolo Wikipedia chiaro, lascia "wikipedia_title": null
+
+
+COSA INCLUDERE:
+- Monumenti e attrazioni turistiche principali
+- Musei e gallerie d'arte
+- Parchi e giardini
+- Zone caratteristiche da esplorare a piedi
+- Punti panoramici
+- Pause pranzo/cena negli orari corretti
+
+COSA CONSIDERARE:
+- Vicinanza geografica dei posti per minimizzare spostamenti
+- Tipologia di esperienza bilanciata (cultura, relax, cibo)
+- Stagionalità e condizioni meteo tipiche del periodo
+- Tempo necessario per godersi ogni esperienza senza fretta
+
+ESEMPIO DI COORDINAZIONE TEMPORALE CORRETTA:
+Se una tappa va dal 25/10/2025 alle 11:00 al 28/10/2025 alle 18:00:
+- Giorno 1 (25/10): Posti dalle 11:00 alle 23:00
+- Giorno 2 (26/10): Posti dalle 09:00 alle 23:00  
+- Giorno 3 (27/10): Posti dalle 09:00 alle 23:00
+- Giorno 3 (28/10): Posti dalle 09:00 alle 18:00
+
+
+REGOLE OBBLIGATORIE PER ORARI GIORNALIERI:
+- Il valore `oraInizio` fornito dall'utente si applica **solo al primo giorno** (`dataInizio`) e quella giornata DEVE iniziare esattamente a `oraInizio`.
+- Il valore `oraFine` fornito dall'utente si applica **solo all'ultimo giorno** (`dataFine`) e quella giornata DEVE terminare esattamente a `oraFine`.
+- Se `dataInizio` == `dataFine`, la singola giornata deve iniziare a `oraInizio` e terminare a `oraFine`.
+- Tutti i giorni **intermedi** (se esistono) devono rispettare questi vincoli: non iniziare prima delle 09:00 e non terminare dopo le 23:00. Quindi l'orario di ogni giorno intermedio sarà 09:00–23:00.
+- Il primo giorno termina alle 23:00, **salvo** che `dataInizio` == `dataFine` (in quel caso termina a `oraFine`).
+- L'ultimo giorno inizia alle 09:00, **salvo** che `dataInizio` == `dataFine` (in quel caso inizia a `oraInizio`).
+- Applica questi orari prima di assegnare i singoli posti per giornata. Assicurati che tutti i posti inseriti in ciascun giorno abbiano orari compresi tra l'inizio e la fine calcolati per quel giorno.
+
+
+ESEMPIO PRATICO PRANZO/CENA:
+Se l'ultima attrazione prima di pranzo è il Colosseo, e la prima dopo pranzo è Piazza Navona:
+{
+  "nome": "Pausa Pranzo",
+  "descrizione": "Pausa pranzo in zona Monti. Prova i piatti tipici della cucina romana.",
+  "orario_inizio": "13:00",
+  "orario_fine": "14:30",
+  "coordinate": null,
+  "wikipedia_title": null,
+  "tipo": "pausa"
+}
+
 
 Genera SOLO il JSON, senza alcun testo aggiuntivo prima o dopo.
 ''';
