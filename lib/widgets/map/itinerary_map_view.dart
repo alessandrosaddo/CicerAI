@@ -47,7 +47,7 @@ class _ItineraryMapViewState extends State<ItineraryMapView> {
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     _applyMapStyle(controller);
-    widget.controller.setMapController(controller);
+    widget.controller.setMapController(controller, context);
   }
 
   Future<void> _applyMapStyle(GoogleMapController controller) async {

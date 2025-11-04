@@ -1,3 +1,4 @@
+import 'package:cicer_ai/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cicer_ai/models/itinerary/citta_itinerario.dart';
@@ -10,11 +11,13 @@ import 'dart:math';
 class ItineraryMapController {
   final ItineraryMapModel model;
   GoogleMapController? _mapController;
+  BuildContext? _context;
 
   ItineraryMapController(this.model);
 
   // GETTERS
   bool get isDetailMode => model.isDetailMode;
+
   bool get isInitialized => model.isInitialized;
 
   CameraTargetBounds get cameraTargetBounds {
@@ -26,12 +29,13 @@ class ItineraryMapController {
   CameraPosition get initialCameraPosition => model.initialCameraPosition;
 
   Set<Marker> get currentMarkers => model.currentMarkers;
+
   Set<Polyline> get currentPolylines => model.currentPolylines;
 
-
   // INIZIALIZZAZIONE
-  void setMapController(GoogleMapController controller) {
+  void setMapController(GoogleMapController controller, BuildContext context) {
     _mapController = controller;
+    _context = context;
     _fitAllCities();
   }
 
@@ -50,7 +54,7 @@ class ItineraryMapController {
     await Future.wait([
       _initializeCityMarkers(),
       ...(model.itinerary.itinerario.map(
-            (city) => _initializePlaceMarkersForCity(city),
+        (city) => _initializePlaceMarkersForCity(city),
       )),
     ]);
 
@@ -140,11 +144,6 @@ class ItineraryMapController {
       icon: icon,
       anchor: const Offset(0.5, 0.5),
       onTap: () => onCityTapped(city),
-      infoWindow: InfoWindow(
-        title: '$letter. ${city.citta}',
-        snippet:
-        '${city.numeroGiorni} giorni - ${city.numeroTotalePostiDaVisitare} posti',
-      ),
     );
   }
 
@@ -160,7 +159,6 @@ class ItineraryMapController {
 
     for (final giornata in city.giornate) {
       for (final posto in giornata.posti) {
-
         if (posto.isPausa) {
           continue;
         }
@@ -191,7 +189,10 @@ class ItineraryMapController {
     }
 
     final markers = await Future.wait(markerFutures);
-    model.setPlaceMarkersForCity(city.citta, markers.whereType<Marker>().toSet());
+    model.setPlaceMarkersForCity(
+      city.citta,
+      markers.whereType<Marker>().toSet(),
+    );
 
     if (polylinePoints.length > 1) {
       model.setPlacePolylinesForCity(city.citta, {
@@ -231,11 +232,11 @@ class ItineraryMapController {
       position: position,
       icon: icon,
       anchor: const Offset(0.5, 0.5),
-      onTap: () => openInGoogleMaps(position, posto.nome),
-      infoWindow: InfoWindow(
-        title: '$number. ${posto.nome}',
-        snippet: 'Tap per aprire in Google Maps',
-      ),
+      onTap: () {
+        if (_context != null) {
+          _showOpenMapsDialog(_context!, position, posto.nome);
+        }
+      },
     );
   }
 
@@ -267,6 +268,67 @@ class ItineraryMapController {
     }
   }
 
+  void _showOpenMapsDialog(
+    BuildContext context,
+    LatLng position,
+    String placeName,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.location_on, color: AppColors.primary(dialogContext)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  placeName,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Vuoi aprire questo luogo in Google Maps?',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.text(dialogContext),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                'Annulla',
+                style: TextStyle(
+                  color: AppColors.hintText(dialogContext),
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                openInGoogleMaps(position, placeName);
+              },
+              child: Text(
+                'Apri',
+                style: TextStyle(
+                  color: AppColors.primary(dialogContext),
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void returnToOverview() {
     debugPrint('🗺️ Ritorno alla vista generale');
 
@@ -291,7 +353,6 @@ class ItineraryMapController {
     }
   }
 
-
   // Adatta la camera per mostrare tutte le città
   void _fitAllCities() {
     if (_mapController == null || model.itinerary.itinerario.isEmpty) return;
@@ -314,7 +375,10 @@ class ItineraryMapController {
   }
 
   // CALCOLI E UTILITÀ
-  LatLngBounds? _calculateBounds(List<LatLng> coordinates, {bool withMargin = true}) {
+  LatLngBounds? _calculateBounds(
+    List<LatLng> coordinates, {
+    bool withMargin = true,
+  }) {
     if (coordinates.isEmpty) return null;
 
     // Se c'è un solo Punto
@@ -356,7 +420,6 @@ class ItineraryMapController {
       northeast: LatLng(maxLat, maxLng),
     );
   }
-
 
   // Calcola Zoom minimo
   MinMaxZoomPreference get minMaxZoomPreference {
@@ -408,10 +471,10 @@ class ItineraryMapController {
   }
 
   Future<BitmapDescriptor?> _createImageMarker(
-      String imageUrl,
-      String letter,
-      String placeName,
-      ) async {
+    String imageUrl,
+    String letter,
+    String placeName,
+  ) async {
     try {
       // Usa la cache del model
       Uint8List? imageBytes = model.getCachedImage(imageUrl);
@@ -470,13 +533,12 @@ class ItineraryMapController {
 
       canvas.save();
       canvas.clipPath(
-        Path()
-          ..addOval(
-            Rect.fromCircle(
-              center: Offset(totalWidth / 2, size / 2),
-              radius: size / 2,
-            ),
+        Path()..addOval(
+          Rect.fromCircle(
+            center: Offset(totalWidth / 2, size / 2),
+            radius: size / 2,
           ),
+        ),
       );
 
       paintImage(
@@ -558,10 +620,10 @@ class ItineraryMapController {
   }
 
   Future<BitmapDescriptor> _createLetterMarker(
-      String letter,
-      String placeName,
-      Color color,
-      ) async {
+    String letter,
+    String placeName,
+    Color color,
+  ) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
@@ -647,7 +709,6 @@ class ItineraryMapController {
 
     return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
-
 
   // CLEANUP
   void dispose() {
