@@ -160,6 +160,11 @@ class ItineraryMapController {
 
     for (final giornata in city.giornate) {
       for (final posto in giornata.posti) {
+
+        if (posto.isPausa) {
+          continue;
+        }
+
         if (posto.coordinate == null) {
           markerFutures.add(Future.value(null));
           continue;

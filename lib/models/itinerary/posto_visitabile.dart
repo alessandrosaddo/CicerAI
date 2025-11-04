@@ -1,5 +1,11 @@
 import 'coordinate.dart';
 
+
+enum TipoPosto {
+  attrazione,
+  pausa,
+}
+
 class PostoVisitabile {
   final String nome;
   final String descrizione;
@@ -9,6 +15,7 @@ class PostoVisitabile {
   final String? wikipediaTitle;
   final String? wikipediaLang;
   String? urlImmagine;
+  final TipoPosto tipo;
 
   PostoVisitabile({
     required this.nome,
@@ -19,10 +26,20 @@ class PostoVisitabile {
     this.wikipediaTitle,
     this.wikipediaLang = 'it',
     this.urlImmagine = '',
+    this.tipo = TipoPosto.attrazione,
   });
 
   // Crea PostoVisitabile da JSON
   factory PostoVisitabile.fromJson(Map<String, dynamic> json) {
+
+    TipoPosto parsedTipo = TipoPosto.attrazione;
+    if (json['tipo'] != null) {
+      final tipoString = json['tipo'].toString().toLowerCase();
+      if (tipoString == 'pausa' || tipoString == 'pause') {
+        parsedTipo = TipoPosto.pausa;
+      }
+    }
+
     return PostoVisitabile(
       nome: json['nome'] ?? '',
       descrizione: json['descrizione'] ?? '',
@@ -34,6 +51,7 @@ class PostoVisitabile {
       wikipediaTitle: json['wikipedia_title'],
       wikipediaLang: json['wikipedia_lang'] ?? 'it',
       urlImmagine: json['url_immagine'] ?? '',
+      tipo: parsedTipo,
     );
   }
 
@@ -48,6 +66,7 @@ class PostoVisitabile {
       'wikipedia_title': wikipediaTitle,
       'wikipedia_lang': wikipediaLang,
       'url_immagine': urlImmagine,
+      'tipo': tipo == TipoPosto.pausa ? 'pausa' : 'attrazione',
     };
   }
 
@@ -71,7 +90,11 @@ class PostoVisitabile {
   // Verifica se l'immagine è stata caricata
   bool get hasImage => urlImmagine != null && urlImmagine!.isNotEmpty;
 
+  bool get isAttrazione => tipo == TipoPosto.attrazione;
+  bool get isPausa => tipo == TipoPosto.pausa;
+
+  bool get shouldHaveMarker => isAttrazione && coordinate != null;
 
   @override
-  String toString() => 'PostoVisitabile(nome: $nome, orario: $orarioInizio-$orarioFine)';
+  String toString() => 'PostoVisitabile(nome: $nome, tipo: $tipo, orario: $orarioInizio-$orarioFine)';
 }
