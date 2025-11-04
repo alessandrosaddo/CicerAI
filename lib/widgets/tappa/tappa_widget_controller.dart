@@ -7,6 +7,8 @@ class TappaWidgetController {
   final TappaData tappaData;
   final void Function(VoidCallback fn) setState;
   final Function(TappaData) onUpdate;
+  final DateTime? minDate;
+  final String? Function(DateTime? selectedDate)? getMinTime;
 
   final TextEditingController _cittaController = TextEditingController();
   final TextEditingController _dalGiornoController = TextEditingController();
@@ -20,7 +22,7 @@ class TappaWidgetController {
 
   Coordinate? _coordinate;
 
-  TappaWidgetController(this.tappaData, this.setState, this.onUpdate) {
+  TappaWidgetController(this.tappaData, this.setState, this.onUpdate,{this.minDate, this.getMinTime}) {
     _cittaController.text = tappaData.citta;
     if (tappaData.dataInizio != null) {
       _dalGiornoController.text = _formatDate(tappaData.dataInizio!);
@@ -113,13 +115,23 @@ class TappaWidgetController {
       "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
 
   Future<void> selectDate(
-    BuildContext context,
-    TextEditingController controller, {
-    bool isStart = true, // Indica se è la data di inizio o di fine
-  }) async {
+      BuildContext context,
+      TextEditingController controller, {
+        bool isStart = true,
+      }) async {
     final DateTime today = DateTime.now();
-    final DateTime initialDate = isStart ? today : _dataInizio!;
-    final firstDate = initialDate;
+
+    DateTime firstDate;
+
+    if (isStart) {
+      firstDate = minDate ?? today;
+    } else {
+      firstDate = _dataInizio ?? today;
+    }
+
+    final DateTime initialDate = isStart
+        ? (minDate != null && minDate!.isAfter(today) ? minDate! : today)
+        : _dataInizio!;
 
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -133,27 +145,40 @@ class TappaWidgetController {
         if (isStart) {
           _dataInizio = picked;
 
-          // resetta TUTTO quello che dipende dall'inizio
+          // Resetta tutto ciò che dipende dall'inizio
           _dalleOreController.clear();
           _alGiornoController.clear();
           _alleOreController.clear();
+          _dataFine = null;
         } else {
           _dataFine = picked;
           _alleOreController.clear();
         }
 
-        controller.text =
-            "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+        controller.text = _formatDate(picked);
       });
       _notifyUpdate();
     }
   }
 
   Future<void> selectTime(
-    BuildContext context,
-    TextEditingController controller, {
-    bool isStart = true,
-  }) async {
+      BuildContext context,
+      TextEditingController controller, {
+        bool isStart = true,
+      }) async {
+
+    String? minTimeString;
+
+    if (isStart && minDate != null && _dataInizio != null) {
+      // Se la data inizio è uguale a minDate, applica vincolo orario
+      if (_dataInizio!.year == minDate!.year &&
+          _dataInizio!.month == minDate!.month &&
+          _dataInizio!.day == minDate!.day) {
+
+        minTimeString = getMinTime?.call(_dataInizio);
+      }
+    }
+
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -164,12 +189,39 @@ class TappaWidgetController {
 
     final int pickedMinutes = picked.hour * 60 + picked.minute;
 
-    // Se dataInizio e dataFine sono stati compilati controlla l'orario
+    // Controllo per data e ora Inizio
+    if (isStart && minTimeString != null) {
+      final parts = minTimeString.split(':');
+      final minMinutes = int.parse(parts[0]) * 60 + int.parse(parts[1]);
+
+      if (pickedMinutes <= minMinutes) {
+        if (!context.mounted) return;
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Orario non valido"),
+            content: Text(
+              "L'orario deve essere successivo \nalle ore: $minTimeString",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    }
+
+    // Controllo esistente per data fine
     if (!isStart && _dataInizio != null && _dataFine != null) {
       final bool sameDay =
           _dataInizio!.year == _dataFine!.year &&
-          _dataInizio!.month == _dataFine!.month &&
-          _dataInizio!.day == _dataFine!.day;
+              _dataInizio!.month == _dataFine!.month &&
+              _dataInizio!.day == _dataFine!.day;
 
       if (sameDay) {
         final inizioParts = _dalleOreController.text.split(":");
@@ -183,7 +235,7 @@ class TappaWidgetController {
             builder: (context) => AlertDialog(
               title: const Text("Orario non valido"),
               content: const Text(
-                "Inserisci almeno un'ora di differenza dall'orario inziale",
+                "Inserisci almeno un'ora di differenza dall'orario iniziale",
               ),
               actions: [
                 TextButton(
@@ -200,10 +252,9 @@ class TappaWidgetController {
 
     setState(() {
       controller.text =
-          "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+      "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
 
       if (isStart) {
-        // se cambia Ora Inizio → resetta Data Fine e Ora Fine
         _alGiornoController.clear();
         _alleOreController.clear();
         _dataFine = null;

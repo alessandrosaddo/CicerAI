@@ -18,6 +18,7 @@ class AppColors {
   static const lightTextDelete = Color(0xFFA80000);
   static const lightDivider = lightBorderColor;
   static const lightIconMap = Colors.white;
+  static const lightWarning = Color(0xFFF3C102);
 
 
   // Tema Scuro
@@ -31,9 +32,10 @@ class AppColors {
   static const darkHintText = Color(0xFF757575);
   static const darkDisabledText = Color(0xFF616161);
   static const darkDelete = darkBackground;
-  static const darkTextDelete = Color(0xFFE34415);
+  static const darkTextDelete = Color(0xFABD3C3C);
   static const darkDivider = darkBorderColor;
   static const darkIconMap = Colors.white;
+  static const darkWarning = Color(0xFFF8EC0A);
 
 
 
@@ -116,5 +118,11 @@ class AppColors {
     return Theme.of(context).brightness == Brightness.light
         ? lightIconMap
         : darkIconMap;
+  }
+
+  static Color warningColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.light
+        ? lightWarning
+        : darkWarning;
   }
 }
