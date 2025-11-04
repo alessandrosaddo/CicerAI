@@ -104,17 +104,7 @@ class ItineraryList extends StatelessWidget {
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(16),
                           ),
-                          child: posto.hasImage
-                              ? Image.network(
-                            posto.urlImmagine!,
-                            height: 140,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stack) {
-                              return _buildPlaceholderImage();
-                            },
-                          )
-                              : _buildPlaceholderImage(),
+                          child: _buildPlaceImage(posto),
                         );
 
                         return Container(
@@ -229,6 +219,32 @@ class ItineraryList extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget _buildPlaceImage(dynamic posto) {
+    if (posto.isPausa) {
+      return Image.asset(
+        'images/pausa.jpg',
+        height: 140,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stack) {
+          return _buildPlaceholderImage();
+        },
+      );
+    } else if (posto.hasImage) {
+      return Image.network(
+        posto.urlImmagine!,
+        height: 140,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stack) {
+          return _buildPlaceholderImage();
+        },
+      );
+    } else {
+      return _buildPlaceholderImage();
+    }
   }
 
   // Immagine non disponibile

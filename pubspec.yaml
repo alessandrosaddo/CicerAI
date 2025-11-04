@@ -107,6 +107,7 @@ flutter:
     - images/launcher.png
     - images/travel_dark.png
     - images/travel_light.png
+    - images/pausa.jpg
     - .env
 
 
