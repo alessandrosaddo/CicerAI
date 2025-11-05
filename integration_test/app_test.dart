@@ -395,8 +395,62 @@ void main() {
       expect(find.byType(HistoryScreen), findsOneWidget);
       debugPrint('✅ HistoryScreen nuovamente aperta');
 
+      //================= STEP 12 Elimina tutti gli itinerari ==============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Trova il pulsante "Elimina tutti"
+      final deleteAllButton = find.byWidgetPredicate(
+            (widget) =>
+        widget is IconButton &&
+            widget.icon is Icon &&
+            (widget.icon as Icon).icon == Icons.delete_sweep,
+      );
+      expect(deleteAllButton, findsOneWidget);
+      debugPrint('✅ Pulsante "Elimina tutti" trovato');
 
 
+      // Tap sul pulsante elimina tutti
+      await tester.tap(deleteAllButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('✅ Pulsante "Elimina tutti" premuto');
+
+
+      // Verifica apertura dialog di conferma
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Attenzione'), findsOneWidget);
+      expect(find.textContaining('Vuoi eliminare tutti gli itinerari'), findsOneWidget);
+      debugPrint('✅ Dialog di conferma eliminazione aperto');
+
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Verifica presenza pulsante "Elimina Tutto"
+      final confirmDeleteButton = find.text('Elimina Tutto');
+      expect(confirmDeleteButton, findsOneWidget);
+      debugPrint('✅ Pulsante "Elimina Tutto" trovato');
+
+
+      // Tap su "Elimina Tutto"
+      await tester.tap(confirmDeleteButton);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      debugPrint('✅ Confermata eliminazione di tutti gli itinerari');
+
+
+      // Verifica chiusura dialog
+      expect(find.byType(AlertDialog), findsNothing);
+      debugPrint('✅ Dialog chiuso');
+
+
+      // Attendi che lo SnackBar scompaia
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+
+      // Verifica che la schermata mostri lo stato vuoto
+      expect(find.text('Nessun viaggio salvato'), findsOneWidget);
+      debugPrint('✅ Archivio vuoto');
+
+
+      debugPrint('🎉 Test completato con successo! Tutti gli step eseguiti.');
 
     });
   });
