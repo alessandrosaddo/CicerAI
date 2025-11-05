@@ -13,19 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           distribution: "adopt"
-          java-version: 11
+          java-version: 17
 
       - name: Install Flutter
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
 
       - name: Crea file .env fittizio per il build
         run: |
-          echo "GOOGLE_MAPS_API_KEY=DUMMY_KEY_PER_CI" > .env
-          echo "GEMINI_API_KEY=DUMMY_KEY_PER_CI" >> .env
+          echo "GOOGLE_MAPS_API_KEY=KEY_PER_CI" > .env
+          echo "GEMINI_API_KEY=KEY_PER_CI" >> .env
 
       - name: Get Flutter packages
         run: flutter pub get
@@ -35,6 +35,7 @@ jobs:
 
       - name: Build Flutter app
         run: flutter build apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
