@@ -264,11 +264,68 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 1));
       debugPrint('✅ PlaceDetail chiuso (drag verso il basso)');
 
+
       // Verifica che il PlaceDetail sia chiuso
       expect(find.byType(PlaceDetail), findsNothing);
       debugPrint('✅ PlaceDetail non più presente');
 
 
+      //================= STEP 9 Salva un itinerario ============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -500),
+      );
+      await tester.pumpAndSettle();
+      debugPrint('✅ Scroll verso il basso eseguito');
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Trova il FloatingActionButton per salvare
+      final saveFab = find.byWidgetPredicate(
+            (widget) =>
+        widget is FloatingActionButton &&
+            widget.child is Icon &&
+            (widget.child as Icon).icon == Icons.save_alt,
+      );
+      expect(saveFab, findsOneWidget);
+      debugPrint('✅ FloatingActionButton "Salva" trovato');
+
+
+      // Tap sul FAB
+      await tester.tap(saveFab);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      debugPrint('✅ FAB "Salva" premuto');
+
+
+      expect(find.byType(SaveItineraryDialog), findsOneWidget);
+      expect(find.text('Salva Itinerario'), findsOneWidget);
+      debugPrint('✅ Dialog "Salva Itinerario" aperto');
+
+      // Verifica presenza campo di testo
+      final nameField = find.byWidgetPredicate(
+            (widget) =>
+        widget is TextField &&
+            widget.decoration?.labelText == 'Nome Itinerario',
+      );
+      expect(nameField, findsOneWidget);
+      debugPrint('✅ Campo "Nome Itinerario" trovato');
+
+      // Inserisci il nome "Viaggio Roma"
+      await tester.enterText(nameField, 'Viaggio Roma');
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      debugPrint('✏️ Nome "Viaggio Roma" inserito');
+
+
+      // Trova e premi il pulsante "Salva"
+      final saveButton = find.widgetWithText(ElevatedButton, 'Salva');
+      expect(saveButton, findsOneWidget);
+      debugPrint('✅ Pulsante "Salva" trovato');
+
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      debugPrint('✅ Pulsante "Salva" premuto');
 
 
     });
