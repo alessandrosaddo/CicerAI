@@ -1,3 +1,6 @@
+import 'package:cicer_ai/widgets/itinerary_list.dart';
+import 'package:cicer_ai/widgets/place_detail.dart';
+import 'package:cicer_ai/widgets/save_itinerary_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
@@ -11,6 +14,7 @@ void main() {
     testWidgets('Compilazione completa di una tappa con tutti i campi', (
       WidgetTester tester,
     ) async {
+
       //================= STEP 1 Avvio dell'app ==============================
       app.main();
       await tester.pumpAndSettle();
@@ -19,6 +23,8 @@ void main() {
       // Verifica presenza testo nella schermata iniziale
       expect(find.text('Personalizza il tuo Viaggio'), findsOneWidget);
       debugPrint('✅ Home Screen caricata');
+
+
 
       //================= STEP 2 Inserimento città ==============================
 
@@ -55,6 +61,8 @@ void main() {
       await tester.pump(const Duration(seconds: 3));
       debugPrint('⏳ Attendo ricostruzione del widget dopo selezione città...');
 
+
+
       //================= STEP 3 Inserimento data inzio ==============================
 
       final dataInizioField = find.widgetWithText(TextField, 'Data Inizio');
@@ -68,8 +76,10 @@ void main() {
 
       final okButton = find.text('OK');
       await tester.tap(okButton);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
       debugPrint('✅ Selezionata la data odierna');
+
+
 
       //================= STEP 4 Inserimento orario inzio ==============================
 
@@ -129,6 +139,9 @@ void main() {
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       debugPrint('✅ Orario confermato con successo');
+
+
+
 
       //================= STEP 5 Inserimento data fine ==============================
 
@@ -217,7 +230,46 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.tap(generateButton);
-      await tester.pumpAndSettle(const Duration(seconds: 35));
+      await tester.pumpAndSettle();
+      debugPrint('⏳ Attendo il caricamento completo dell\'itinerario...');
+
+
+
+      //================= STEP 8 Apri una card ============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      expect(find.byType(ItineraryList), findsOneWidget);
+      debugPrint('✅ ItineraryList trovata');
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      final cardFinder = find.byType(Card).first;
+      expect(cardFinder, findsOneWidget);
+      debugPrint('✅ Card trovata nell\'itinerario');
+
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.tap(cardFinder);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('✅ Card tappata, apertura PlaceDetail...');
+
+      expect(find.byType(PlaceDetail), findsOneWidget);
+      debugPrint('✅ PlaceDetail aperto con successo');
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      final placeDetailFinder = find.byType(PlaceDetail);
+
+      // Drag verso il basso di 500 pixel
+      await tester.drag(placeDetailFinder, const Offset(0, 500));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      debugPrint('✅ PlaceDetail chiuso (drag verso il basso)');
+
+      // Verifica che il PlaceDetail sia chiuso
+      expect(find.byType(PlaceDetail), findsNothing);
+      debugPrint('✅ PlaceDetail non più presente');
+
+
+
 
     });
   });
