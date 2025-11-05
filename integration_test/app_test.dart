@@ -363,6 +363,39 @@ void main() {
       expect(find.text('Viaggio Roma'), findsOneWidget);
       debugPrint('✅ Itinerario "Viaggio Roma" trovato nella lista');
 
+      //================= STEP 11 Apri l'itinerario salvato ==============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Trova la card dell'itinerario "Viaggio Roma"
+      final itineraryCard = find.ancestor(
+        of: find.text('Viaggio Roma'),
+        matching: find.byType(Card),
+      );
+      expect(itineraryCard, findsOneWidget);
+      debugPrint('✅ Card itinerario "Viaggio Roma" trovata');
+
+
+      // Tap sulla card per aprire l'itinerario
+      await tester.tap(itineraryCard);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      debugPrint('✅ Card tappata, apertura itinerario...');
+
+
+      expect(find.byType(ItineraryList), findsOneWidget);
+      debugPrint('✅ Itinerario salvato aperto con successo');
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Ritorna alla schermata Archivio
+      await tester.tap(archivioBnb);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('✅ Ritorno alla schermata Archivio');
+
+      expect(find.byType(HistoryScreen), findsOneWidget);
+      debugPrint('✅ HistoryScreen nuovamente aperta');
+
+
 
 
     });
