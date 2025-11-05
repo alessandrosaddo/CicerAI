@@ -130,6 +130,95 @@ void main() {
       await tester.pumpAndSettle();
       debugPrint('✅ Orario confermato con successo');
 
+      //================= STEP 5 Inserimento data fine ==============================
+
+      final dataFineField = find.widgetWithText(TextField, 'Data Fine');
+      expect(dataFineField, findsOneWidget);
+      debugPrint('✅ Campo "Data Fine" trovato e abilitato');
+
+      await tester.tap(dataFineField);
+      await tester.pumpAndSettle();
+      debugPrint('✅ Campo data fine, apro il date picker');
+
+      // Seleziona la prima data disponibile (che sarà >= Data Inizio)
+      final okButtonFine = find.text('OK');
+      await tester.tap(okButtonFine);
+      await tester.pumpAndSettle();
+      debugPrint('✅ Selezionata la data di fine');
+
+
+
+
+      //================= STEP 6 Inserimento orario fine ==============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      debugPrint('⏳ Attendo che il campo "Ora Fine" diventi disponibile...');
+
+      final oraFineField = find.widgetWithText(TextField, 'Ora Fine');
+      expect(oraFineField, findsOneWidget);
+      debugPrint('✅ Campo "Ora Fine" trovato e abilitato');
+
+      await tester.tap(oraFineField);
+      await tester.pumpAndSettle();
+      debugPrint('✅ Time picker aperto per ora fine');
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Trova il TextField del time picker (di solito è l'ultimo TextField sulla schermata)
+      final fineTextFields = find.byType(TextField);
+      expect(fineTextFields, findsWidgets);
+
+      // Prendiamo le ORE
+      final pickerHourFineTextField =
+      fineTextFields.at(fineTextFields.evaluate().length - 2);
+
+      // Focalizza il campo del picker
+      await tester.tap(pickerHourFineTextField);
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // SVUOTA il contenuto esistente
+      await tester.enterText(pickerHourFineTextField, '');
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // Adesso scrivi l'orario desiderato
+      await tester.enterText(pickerHourFineTextField, '18');
+      await tester.pumpAndSettle(const Duration(milliseconds: 300));
+      debugPrint('✏️ Orario "18" inserito nel campo delle ore (fine)');
+
+      // Prendiamo i MINUTI
+      final pickerMinuteFineTextField  = allTextFields.at(
+        allTextFields.evaluate().length - 1,
+      );
+
+      // Focalizza il campo del picker
+      await tester.tap(pickerMinuteFineTextField);
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // SVUOTA il contenuto esistente
+      await tester.enterText(pickerMinuteFineTextField, '');
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // Adesso scrivi l'orario desiderato
+      await tester.enterText(pickerMinuteFineTextField, '00');
+      await tester.pumpAndSettle(const Duration(milliseconds: 300));
+      debugPrint('✏️ Orario "00" inserito nel campo dei minuti (fine)');
+
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      debugPrint('✅ Orario confermato con successo');
+
+
+      //================= STEP 7 Generare l'itinerario ==============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      final generateButton = find.text('Genera Itinerario');
+
+      await tester.ensureVisible(generateButton);
+      await tester.pumpAndSettle();
+
+      await tester.tap(generateButton);
+      await tester.pumpAndSettle(const Duration(seconds: 35));
+
     });
   });
 }
