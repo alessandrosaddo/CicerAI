@@ -70,6 +70,66 @@ void main() {
       await tester.tap(okButton);
       await tester.pumpAndSettle();
       debugPrint('✅ Selezionata la data odierna');
+
+      //================= STEP 4 Inserimento orario inzio ==============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      debugPrint('⏳ Attendo abilitazione campo orario dopo selezione data...');
+
+      final oraInizioField = find.widgetWithText(TextField, 'Ora Inizio');
+      expect(oraInizioField, findsOneWidget);
+      debugPrint('✅ Campo "Ora Inizio" trovato e abilitato');
+
+      await tester.tap(oraInizioField);
+      await tester.pumpAndSettle();
+      debugPrint('✅ Time picker aperto');
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Trova il TextField del time picker (di solito è l'ultimo TextField sulla schermata)
+      final allTextFields = find.byType(TextField);
+      expect(allTextFields, findsWidgets);
+
+      // Prendiamo le ORE
+      final pickerHourTextField = allTextFields.at(
+        allTextFields.evaluate().length - 2,
+      );
+
+      // Focalizza il campo del picker
+      await tester.tap(pickerHourTextField);
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // SVUOTA il contenuto esistente
+      await tester.enterText(pickerHourTextField, '');
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // Adesso scrivi l'orario desiderato
+      await tester.enterText(pickerHourTextField, '09');
+      await tester.pumpAndSettle(const Duration(milliseconds: 300));
+      debugPrint('✏️ Orario "09" inserito nel campo delle ore');
+
+      // Prendiamo i MINUTI
+      final pickerMinuteTextField = allTextFields.at(
+        allTextFields.evaluate().length - 1,
+      );
+
+      // Focalizza il campo del picker
+      await tester.tap(pickerMinuteTextField);
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // SVUOTA il contenuto esistente
+      await tester.enterText(pickerMinuteTextField, '');
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+
+      // Adesso scrivi l'orario desiderato
+      await tester.enterText(pickerMinuteTextField, '00');
+      await tester.pumpAndSettle(const Duration(milliseconds: 300));
+      debugPrint('✏️ Orario "00" inserito nel campo dei minuti');
+
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      debugPrint('✅ Orario confermato con successo');
+
     });
   });
 }
