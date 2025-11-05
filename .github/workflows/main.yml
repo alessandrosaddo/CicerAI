@@ -22,13 +22,19 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
 
-      - name: Crea file .env fittizio per il build
+      - name: Fake env for build
         run: |
           echo "GOOGLE_MAPS_API_KEY=KEY_PER_CI" > .env
           echo "GEMINI_API_KEY=KEY_PER_CI" >> .env
 
       - name: Get Flutter packages
         run: flutter pub get
+
+      - name: Generate app icons
+        run: flutter pub run flutter_launcher_icons:main
+
+      - name: Generate splash screen
+        run: flutter pub run flutter_native_splash:create
 
       - name: Run Flutter tests
         run: flutter test
