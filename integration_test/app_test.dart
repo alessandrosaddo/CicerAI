@@ -55,7 +55,21 @@ void main() {
       await tester.pump(const Duration(seconds: 3));
       debugPrint('⏳ Attendo ricostruzione del widget dopo selezione città...');
 
+      //================= STEP 3 Inserimento data inzio ==============================
 
+      final dataInizioField = find.widgetWithText(TextField, 'Data Inizio');
+      expect(dataInizioField, findsOneWidget);
+      debugPrint('✅ Campo "Data Inizio" trovato e abilitato');
+
+      // Tap sul campo della data
+      await tester.tap(dataInizioField);
+      await tester.pumpAndSettle();
+      debugPrint('✅ Campo data, apro il date picker');
+
+      final okButton = find.text('OK');
+      await tester.tap(okButton);
+      await tester.pumpAndSettle();
+      debugPrint('✅ Selezionata la data odierna');
     });
   });
 }
