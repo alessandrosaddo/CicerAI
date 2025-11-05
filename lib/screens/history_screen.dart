@@ -56,7 +56,7 @@ class HistoryScreenState extends State<HistoryScreen> {
         });
       }
     } catch (e) {
-      debugPrint('❌ Errore caricamento itinerari: $e');
+      debugPrint(' Errore caricamento itinerari: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -143,7 +143,7 @@ class HistoryScreenState extends State<HistoryScreen> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: AppColors.primary(context)),
+                Icon(Icons.check_circle, color: AppColors.acceptColor(context)),
                 const SizedBox(width: 8),
                 const Text('Tutti gli itinerari sono stati eliminati'),
               ],
@@ -155,7 +155,7 @@ class HistoryScreenState extends State<HistoryScreen> {
         await _loadItineraries();
       }
     } catch (e) {
-      debugPrint('❌ Errore eliminazione totale: $e');
+      debugPrint(' Errore eliminazione totale: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(

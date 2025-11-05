@@ -176,7 +176,7 @@ class ItineraryMapModel extends ChangeNotifier {
         if (response.statusCode == 200) {
           final bytes = response.bodyBytes;
           _imageCache[url] = bytes;
-          debugPrint('✅ Download riuscito per $url (tentativo ${attempt + 1})');
+          debugPrint('Download riuscito per $url (tentativo ${attempt + 1})');
           return bytes;
         }
       } catch (e) {
@@ -185,7 +185,7 @@ class ItineraryMapModel extends ChangeNotifier {
           _imageCache[url] = null;
           return null;
         }
-        debugPrint('⚠️ Tentativo ${attempt + 1} fallito per $url, riprovo...');
+        debugPrint('Tentativo ${attempt + 1} fallito per $url, riprovo...');
         await Future.delayed(Duration(seconds: 1 + attempt));
       }
     }
