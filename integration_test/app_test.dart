@@ -1,3 +1,4 @@
+import 'package:cicer_ai/screens/history_screen.dart';
 import 'package:cicer_ai/widgets/itinerary_list.dart';
 import 'package:cicer_ai/widgets/place_detail.dart';
 import 'package:cicer_ai/widgets/save_itinerary_dialog.dart';
@@ -326,6 +327,42 @@ void main() {
       await tester.tap(saveButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       debugPrint('✅ Pulsante "Salva" premuto');
+
+      //================= STEP 10 Naviga alla schermata Archivio ==============================
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Trova il BottomNavigationBar
+      final bottomNavBar = find.byType(BottomNavigationBar);
+      expect(bottomNavBar, findsOneWidget);
+      debugPrint('✅ BottomNavigationBar trovata');
+
+
+      // Trova l'icona "Archivio"
+      final archivioBnb = find.descendant(
+        of: bottomNavBar,
+        matching: find.byIcon(Icons.history),
+      );
+      expect(archivioBnb, findsOneWidget);
+      debugPrint('✅ Icona "Archivio" trovata nella bottom navigation bar');
+
+      // Tap sull'icona Archivio
+      await tester.tap(archivioBnb);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('✅ Navigato alla schermata Archivio');
+
+
+      // Verifica che la schermata Archivio sia caricata
+      expect(find.byType(HistoryScreen), findsOneWidget);
+      debugPrint('✅ HistoryScreen caricata con successo');
+
+
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Verifica presenza dell'itinerario salvato
+      expect(find.text('Viaggio Roma'), findsOneWidget);
+      debugPrint('✅ Itinerario "Viaggio Roma" trovato nella lista');
+
 
 
     });
